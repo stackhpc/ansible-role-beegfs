@@ -2,4 +2,4 @@
 - hosts: openstack
   connection: local
   roles:
-    - stackhpc.cluster-infra
+    - stackhpc.beegfs
