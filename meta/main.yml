@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  author: StackHPC Ltd.
+  description: >
+    This role provisions an exisiting cluster to support Beegfs management, metadata,
+    object storage server and client roles.
+  company: StackHPC Ltd
+  license: Apache2
+  min_ansible_version: 2.2
+  platforms:
+    - name: EL
+      versions:
+        - 7
+  galaxy_tags:
+    - cloud
+    - storage
+    - beegfs
+
+dependencies: []
