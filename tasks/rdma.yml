@@ -1,0 +1,25 @@
+---
+- name: Ensure RDMA packages are installed
+  package:
+    name:
+    - "librdmacm"
+    - "libibmad"
+    - "libibumad"
+    - "rdma-core"
+    - "libibverbs"
+    - "libibverbs-utils"
+    state: present
+  become: True
+  when: False
+
+- name: Ensure RDMA kernel modules are loaded
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  become: True
+  with_items:
+  - "ib_umad"
+  - "ib_uverbs"
+  - "rdma_ucm"
+  when: False
+
