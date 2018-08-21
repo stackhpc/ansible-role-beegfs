@@ -20,6 +20,12 @@
   become: True
   with_items: "{{ beegfs_kmod_preload }}"
 
+- name: Generate /etc/hosts file
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+  become: yes
+
 - name: Stop all beegfs services
   service:
     name: "beegfs-*"
@@ -28,8 +34,10 @@
 
 - name: Unmount beegfs data
   mount:
-    path: /data/beegfs/beegfs_data_0
-    state: unmounted
+    path: "{{ item }}"
+    state: absent
+  with_items:
+  - "{{ beegfs_path_oss }}"
   become: yes
 
 - name: Remove all beegfs folders
@@ -37,7 +45,6 @@
     path: /data/beegfs/
     state: absent
   become: yes
-
 
 - name: Make sure required modules are loaded at boot via /etc/modules-load.d
   lineinfile:
@@ -114,7 +121,7 @@
   retries: 3
   delay: 3
   register: result
-  until: result.rc == 0
+  until: result | success
 
 - name: Enable and start BeeGFS admon service
   service:
