@@ -26,11 +26,19 @@
     dest: /etc/hosts
   become: yes
 
-- name: Stop all beegfs services
+- name: Stop beegfs-client service
+  service:
+    name: "beegfs-client"
+    state: stopped
+  become: yes
+  ignore_errors: yes
+
+- name: Stop all other beegfs services
   service:
     name: "beegfs-*"
     state: stopped
   become: yes
+  ignore_errors: yes
 
 - name: Unmount beegfs data
   mount:
@@ -121,7 +129,7 @@
   retries: 3
   delay: 3
   register: result
-  until: result | success
+  until: result is success
 
 - name: Enable and start BeeGFS admon service
   service:
