@@ -3,13 +3,13 @@
   package:
     name: beegfs-storage
     state: present
-  become: True
+  become: yes
 
 - name: Ensures BeeGFS storage service is not running
   service:
-    name: "beegfs-storage"
-    state: "stopped"
-  become: True
+    name: beegfs-storage
+    state: stopped
+  become: yes
 
 - name: Prepare storage devices
   block:
@@ -34,7 +34,7 @@
     with_together:
     - "{{ beegfs_dev_oss }}"
     - "{{ beegfs_path_oss }}"
-  become: True
+  become: yes
   when: beegfs_dev_oss is defined
 
 - name: Clear storeStorageDirectory
@@ -42,18 +42,18 @@
     path: /etc/beegfs/beegfs-storage.conf
     regexp: "^storeStorageDirectory"
     line: "storeStorageDirectory        ="
-  become: True
+  become: yes
 
 - name: Run storage service setup script
   command: "/opt/beegfs/sbin/beegfs-setup-storage -p {{ item }} -m {{ beegfs_host_mgmt }} -f"
   args:
-    #creates: "{{ item }}/nodeNumID"
+    creates: "{{ item }}/nodeNumID"
   with_items: "{{ beegfs_path_oss }}"
-  become: True
+  become: yes
 
 - name: Specify connInterfacesFile
   lineinfile:
     path: /etc/beegfs/beegfs-storage.conf
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
-  become: True
+  become: yes

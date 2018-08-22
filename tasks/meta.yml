@@ -3,19 +3,19 @@
   package:
     name: beegfs-meta
     state: present
-  become: True
+  become: yes
 
 - name: Ensures BeeGFS meta service is not running
   service:
     name: "beegfs-meta"
     state: "stopped"
-  become: True
+  become: yes
 
 - name: Create directory for BeeGFS metadata
   file:
     path: "{{ beegfs_path_meta }}"
     state: directory
-  become: True
+  become: yes
 
 - name: Prepare metadata block storage
   block:
@@ -34,16 +34,16 @@
       path: "{{ beegfs_path_meta }}"
       fstype: "{{ beegfs_fstype }}"
       state: mounted
-  become: True
+  become: yes
   when: beegfs_dev_meta is defined
 
 - name: Run metadata service setup script
   command: "/opt/beegfs/sbin/beegfs-setup-meta -p {{ beegfs_path_meta }} -m {{ beegfs_host_mgmt }} -f"
-  become: True
+  become: yes
 
 - name: Specify connInterfacesFile
   lineinfile:
     path: /etc/beegfs/beegfs-meta.conf
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
-  become: True
+  become: yes

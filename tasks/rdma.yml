@@ -9,17 +9,17 @@
     - "libibverbs"
     - "libibverbs-utils"
     state: present
-  become: True
-  when: False
+  become: yes
+  when: false
 
 - name: Ensure RDMA kernel modules are loaded
   modprobe:
     name: "{{ item }}"
     state: present
-  become: True
+  become: yes
   with_items:
   - "ib_umad"
   - "ib_uverbs"
   - "rdma_ucm"
-  when: False
-
+  when: false
+...
