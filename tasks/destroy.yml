@@ -1,19 +1,4 @@
 ---
-- name: Stop beegfs-client service first if running
-  service:
-    name: "beegfs-client"
-    state: stopped
-  ignore_errors: yes
-  become: yes
-  when: beegfs_enable.client
-
-- name: Stop all other beegfs services
-  service:
-    name: "beegfs-*"
-    state: stopped
-  ignore_errors: yes
-  become: yes
-
 - name: Unmount beegfs data
   mount:
     path: "{{ item }}"

@@ -1,8 +1,27 @@
 ---
-- name: If beegfs_state is absent
-  include: destroy.yml
-  when: beegfs_state | lower == "absent"
+- name: Stop beegfs-client service first if running
+  service:
+    name: "beegfs-client"
+    state: stopped
+    state: stopped
+    enabled: beegfs_state | lower == "present"
+  ignore_errors: yes
+  become: yes
+  when: beegfs_enable.client
+
+- name: Stop all other beegfs services
+  service:
+    name: "beegfs-*"
+    state: stopped
+    enabled: beegfs_state | lower == "present"
+  ignore_errors: yes
+  become: yes
 
 - name: If beegfs_state is present
   include: create.yml
   when: beegfs_state | lower == "present"
+
+- name: If beegfs_state is absent
+  include: destroy.yml
+  when: beegfs_state | lower == "absent"
+...
