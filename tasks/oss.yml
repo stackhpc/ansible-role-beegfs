@@ -23,7 +23,6 @@
     filesystem:
       dev: "{{ item }}"
       fstype: "{{ beegfs_fstype }}"
-      force: "{{ beegfs_force_format }}"
     with_items:
     - "{{ beegfs_dev_oss }}"
   - name: Mount filesystem

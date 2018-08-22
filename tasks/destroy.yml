@@ -1,0 +1,42 @@
+---
+- name: Stop beegfs-client service first if running
+  service:
+    name: "beegfs-client"
+    state: stopped
+  ignore_errors: yes
+  become: yes
+  when: beegfs_enable.client
+
+- name: Stop all other beegfs services
+  service:
+    name: "beegfs-*"
+    state: stopped
+  ignore_errors: yes
+  become: yes
+
+- name: Unmount beegfs data
+  mount:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+  - "{{ beegfs_path_oss }}"
+  when: beegfs_enable.oss
+
+- name: Format filesystem
+  filesystem:
+    dev: "{{ item }}"
+    fstype: "{{ beegfs_fstype }}"
+    force: yes
+  become: yes
+  with_items:
+  - "{{ beegfs_dev_oss }}"
+  when:
+  - beegfs_enable.oss
+  - beegfs_dev_oss is defined
+
+- name: Remove all beegfs folders
+  file:
+    path: /data/beegfs/
+    state: absent
+  become: yes
+...
