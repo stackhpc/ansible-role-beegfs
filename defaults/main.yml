@@ -7,11 +7,8 @@ beegfs_rdma: true
 beegfs_path_client: "/mnt/beegfs"
 beegfs_path_mgmt: "/data/beegfs/beegfs_mgmtd"
 beegfs_path_meta: "/data/beegfs/beegfs_meta"
-beegfs_path_oss:
-  - "/data/beegfs/beegfs_data_0"
-  - "/data/beegfs/beegfs_data_1"
-  - "/data/beegfs/beegfs_data_2"
-  - "/data/beegfs/beegfs_data_3"
+beegfs_path_oss: "/data/beegfs/beegfs_oss"
+beegfs_path_dev: "/dev"
 
 beegfs_host_mgmt: ""
 
@@ -40,3 +37,4 @@ beegfs_fstype: "xfs"
 beegfs_interfaces: []
 
 beegfs_state: present
+...

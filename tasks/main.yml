@@ -1,10 +1,12 @@
 ---
 - name: Stop beegfs-client service first if running
   service:
-    name: "beegfs-client"
+    name: "{{ item }}"
     state: stopped
-    state: stopped
-    enabled: beegfs_state | lower == "present"
+    enabled: "{{ beegfs_state | lower == 'present' }}"
+  with_items:
+  - beegfs-client
+  - beegfs-helperd
   ignore_errors: yes
   become: yes
   when: beegfs_enable.client
@@ -13,7 +15,7 @@
   service:
     name: "beegfs-*"
     state: stopped
-    enabled: beegfs_state | lower == "present"
+    enabled: "{{ beegfs_state | lower == 'present' }}"
   ignore_errors: yes
   become: yes
 

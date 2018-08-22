@@ -15,40 +15,32 @@
   block:
   - name: Ensure storage device is not currently mounted
     mount:
-      path: "{{ item }}"
+      path: "{{ beegfs_path_oss }}/{{ item }}"
       state: unmounted
     with_items:
-    - "{{ beegfs_path_oss }}"
+    - "{{ beegfs_dev_oss }}"
   - name: Format filesystem
     filesystem:
-      dev: "{{ item }}"
+      dev: "{{ beegfs_path_dev }}/{{ item }}"
       fstype: "{{ beegfs_fstype }}"
     with_items:
     - "{{ beegfs_dev_oss }}"
   - name: Mount filesystem
     mount:
-      src: "{{ item.0 }}"
-      path: "{{ item.1 }}"
+      src: "{{ beegfs_path_dev }}/{{ item }}"
+      path: "{{ beegfs_path_oss }}/{{ item }}"
       fstype: "{{ beegfs_fstype }}"
       state: mounted
-    with_together:
+    with_items:
     - "{{ beegfs_dev_oss }}"
-    - "{{ beegfs_path_oss }}"
   become: yes
   when: beegfs_dev_oss is defined
 
-- name: Clear storeStorageDirectory
-  lineinfile:
-    path: /etc/beegfs/beegfs-storage.conf
-    regexp: "^storeStorageDirectory"
-    line: "storeStorageDirectory        ="
-  become: yes
-
 - name: Run storage service setup script
-  command: "/opt/beegfs/sbin/beegfs-setup-storage -p {{ item }} -m {{ beegfs_host_mgmt }} -f"
+  command: "/opt/beegfs/sbin/beegfs-setup-storage -p {{ beegfs_path_oss }}/{{ item }} -m {{ beegfs_host_mgmt }} -f"
   args:
     creates: "{{ item }}/nodeNumID"
-  with_items: "{{ beegfs_path_oss }}"
+  with_items: "{{ beegfs_dev_oss }}"
   become: yes
 
 - name: Specify connInterfacesFile
@@ -57,3 +49,4 @@
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
   become: yes
+...
