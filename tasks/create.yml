@@ -38,19 +38,19 @@
   with_items: "{{ beegfs_kmod_preload }}"
 
 - include: mgmt.yml
-  when: beegfs_enable.mgmt
+  when: beegfs_enable.mgmt | bool
 
 - include: admon.yml
-  when: beegfs_enable.admon
+  when: beegfs_enable.admon | bool
 
 - include: meta.yml
-  when: beegfs_enable.meta
+  when: beegfs_enable.meta | bool
 
 - include: oss.yml
-  when: beegfs_enable.oss
+  when: beegfs_enable.oss | bool
 
 - include: client.yml
-  when: beegfs_enable.client and beegfs_path_client not in ansible_mounts
+  when: beegfs_enable.client | bool and beegfs_path_client not in ansible_mounts
 
 - name: Create connInterfacesFile
   template:
@@ -64,7 +64,7 @@
     enabled: yes
     state: restarted
   become: yes
-  when: beegfs_enable.mgmt
+  when: beegfs_enable.mgmt | bool
 
 - name: Enable and start BeeGFS meta service
   service:
@@ -72,7 +72,7 @@
     enabled: yes
     state: restarted
   become: yes
-  when: beegfs_enable.meta
+  when: beegfs_enable.meta | bool
 
 - name: Enable and start BeeGFS storage service
   service:
@@ -80,7 +80,7 @@
     enabled: yes
     state: restarted
   become: yes
-  when: beegfs_enable.oss
+  when: beegfs_enable.oss | bool
 
 - name: Enable and start BeeGFS client service
   service:
@@ -91,7 +91,7 @@
   with_items:
   - beegfs-helperd
   - beegfs-client
-  when: beegfs_enable.client
+  when: beegfs_enable.client | bool
   retries: 3
   delay: 3
   register: result
@@ -103,5 +103,5 @@
     enabled: yes
     state: restarted
   become: yes
-  when: beegfs_enable.admon
+  when: beegfs_enable.admon | bool
 ...

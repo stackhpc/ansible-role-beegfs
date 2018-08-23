@@ -34,7 +34,7 @@
       name: "kernel-devel-{{ kernel_version.stdout }}"
       state: present
   become: yes
-  when: beegfs_rdma
+  when: beegfs_rdma | bool
 
 - name: Ensure gcc is installed
   package:

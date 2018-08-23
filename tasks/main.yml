@@ -9,7 +9,7 @@
   - beegfs-helperd
   ignore_errors: yes
   become: yes
-  when: beegfs_enable.client
+  when: beegfs_enable.client | bool
 
 - name: Stop all other beegfs services
   service:

@@ -7,8 +7,8 @@
 
 - name: Ensures BeeGFS meta service is not running
   service:
-    name: "beegfs-meta"
-    state: "stopped"
+    name: beegfs-meta
+    state: stopped
   become: yes
 
 - name: Create directory for BeeGFS metadata

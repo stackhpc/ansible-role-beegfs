@@ -13,7 +13,7 @@
   become: yes
   with_items:
   - "{{ beegfs_dev_oss }}"
-  when: beegfs_enable.oss
+  when: beegfs_enable.oss | bool
 
 - name: Format filesystem
   filesystem:
@@ -24,7 +24,7 @@
   with_items:
   - "{{ beegfs_dev_oss }}"
   when:
-  - beegfs_enable.oss
+  - beegfs_enable.oss | bool
   - beegfs_dev_oss is defined
 
 - name: Remove all beegfs folders
