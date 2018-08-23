@@ -19,7 +19,10 @@
 
 - name: Run management service setup script
   command: "/opt/beegfs/sbin/beegfs-setup-mgmtd -p {{ beegfs_path_mgmt }} -f"
+  args:
+    creates: "{{ beegfs_path_mgmt }}/originalNodeID"
   become: yes
+  notify: Restart management server
 
 - name: Specify connInterfacesFile
   lineinfile:

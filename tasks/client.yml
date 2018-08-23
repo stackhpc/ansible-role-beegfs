@@ -5,18 +5,18 @@
     state: present
   become: yes
   with_items:
-  - "beegfs-client"
-  - "beegfs-helperd"
-  - "beegfs-utils"
+  - beegfs-client
+  - beegfs-helperd
+  - beegfs-utils
 
 - name: Ensure the BeeGFS client services are not running
   service:
     name: "{{ item }}"
-    state: "stopped"
+    state: stopped
   become: yes
   with_items:
-  - "beegfs-helperd"
-  - "beegfs-client"
+  - beegfs-helperd
+  - beegfs-client
 
 - name: Detect the version of the running kernel
   command: "uname -r"

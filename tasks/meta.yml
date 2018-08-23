@@ -39,6 +39,8 @@
 
 - name: Run metadata service setup script
   command: "/opt/beegfs/sbin/beegfs-setup-meta -p {{ beegfs_path_meta }} -m {{ beegfs_host_mgmt }} -f"
+  args:
+    creates: "{{ beegfs_path_meta }}/originalNodeID"
   become: yes
 
 - name: Specify connInterfacesFile
