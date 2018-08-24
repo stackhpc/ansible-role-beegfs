@@ -5,6 +5,10 @@
     state: present
   become: yes
 
+- name: Create a list of devices that are mounted
+  set_fact:
+    mounted_path_dev_items: "{{ ansible_mounts | map(attribute='device') | list }}"
+
 - name: Ensures BeeGFS storage service is not running
   service:
     name: beegfs-storage
@@ -13,19 +17,16 @@
 
 - name: Prepare storage devices
   block:
-  - name: Ensure storage device is not currently mounted
-    mount:
-      path: "{{ beegfs_path_oss }}/{{ item }}"
-      state: unmounted
-    with_items:
-    - "{{ beegfs_dev_oss }}"
-  - name: Format filesystem
+  - name: Attempt to format if the device is not mounted
+    vars:
+      path_dev_item: "{{ beegfs_path_dev }}/{{ item }}"
     filesystem:
-      dev: "{{ beegfs_path_dev }}/{{ item }}"
+      dev: "{{ path_dev_item }}"
       fstype: "{{ beegfs_fstype }}"
+    when: path_dev_item not in mounted_path_dev_items
     with_items:
     - "{{ beegfs_dev_oss }}"
-  - name: Mount filesystem
+  - name: Mount filesystem, fail if the fstype doesn't match
     mount:
       src: "{{ beegfs_path_dev }}/{{ item }}"
       path: "{{ beegfs_path_oss }}/{{ item }}"
@@ -39,7 +40,7 @@
 - name: Run storage service setup script
   command: "/opt/beegfs/sbin/beegfs-setup-storage -p {{ beegfs_path_oss }}/{{ item }} -m {{ beegfs_host_mgmt }} -f"
   args:
-    creates: "{{ item }}/originalNodeID"
+    creates: "{{ beegfs_path_oss }}/{{ item }}/originalNodeID"
   with_items: "{{ beegfs_dev_oss }}"
   become: yes
 

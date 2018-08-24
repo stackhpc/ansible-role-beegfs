@@ -82,6 +82,13 @@
   become: yes
   when: beegfs_enable.oss | bool
 
+- name: Ensure that BeeGFS storage service has really started
+  service:
+    name: beegfs-storage
+    state: started
+  become: yes
+  when: beegfs_enable.oss | bool
+
 - name: Enable and start BeeGFS client service
   service:
     name: "{{ item }}"

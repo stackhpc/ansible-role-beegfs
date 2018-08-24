@@ -50,6 +50,8 @@
 
 - name: Run the BeeGFS client setup script
   command: "/opt/beegfs/sbin/beegfs-setup-client -m {{ beegfs_host_mgmt }} -f" 
+  args:
+    creates: "{{ beegfs_path_client }}/originalNodeID"
   become: yes
 
 - name: Ensure the BeeGFS mount point is unmounted
@@ -77,3 +79,4 @@
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
   become: yes
+...
