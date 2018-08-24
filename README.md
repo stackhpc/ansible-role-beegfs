@@ -26,16 +26,7 @@ Where `hosts.j2` is a jinja2 template containing:
     {{ hostvars[item]['ansible_host'] }}  {{ item }} {{ short_name[0] }}
     {% endfor %}
 
-Additionally, the following groups must be defined in the appliance
-inventory:
-
-- `cluster_beegfs_mgmt` (Management server - minimum one host)
-- `cluster_beegfs_mds` (Metadata storage server nodes)
-- `cluster_beegfs_oss` (Object storage server nodes)
-- `cluster_beegfs_client` (Clients of the BeeGFS storage cluster)
-- `cluster_beegfs_admon` (NOT IMPLEMENTED)
-
-Example playbook:
+Example playbook `beegfs.yml`:
 
     ---
     - hosts: cluster
@@ -64,7 +55,7 @@ Example playbook:
           beegfs_state: present
     ...
 
-Example inventory:
+Corresponding example inventory `inventory-beegfs`:
 
     [leader]
     bgfs1.novalocal ansible_host=172.16.1.6 ansible_user=centos
@@ -89,6 +80,14 @@ Example inventory:
     [cluster_beegfs_client:children]
     leader
     follower
+
+Where the groups can be interpreted as:
+
+- `cluster_beegfs_mgmt` (Management server - minimum one host)
+- `cluster_beegfs_mds` (Metadata storage server nodes)
+- `cluster_beegfs_oss` (Object storage server nodes)
+- `cluster_beegfs_client` (Clients of the BeeGFS storage cluster)
+- `cluster_beegfs_admon` (NOT IMPLEMENTED)
 
 To create a cluster:
 
