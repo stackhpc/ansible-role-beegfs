@@ -1,32 +1,41 @@
 # stackhpc.beegfs
 
-This role was last tested on Ansible version 2.5.2.
+This Ansible role can be used to create and destroy a BeegFS cluster. In
+summary, BeegFS is a parallel file system that spreads user data across
+multiple servers. It is designed to be scalable both in terms of
+performance and capacity. Learn more about BeeFS [here](www.beegfs.io).
 
-The role requires `/etc/hosts` file on each node to contain all nodes
-named in the inventory. This means running the following Ansible task:
+The role was last tested using Ansible version 2.5.2.
 
-    ---
-    - name: Generate /etc/hosts file
-      template:
-        src: hosts.j2
-        dest: /etc/hosts
-      become: yes
-    ...
+## Example
 
-Where `hosts.j2` is a jinja2 template containing:
+Say we have an inventory that looks like this (`inventory-beegfs`):
 
-    # {{ ansible_managed }}
-    127.0.0.1   localhost localhost.localdomain localhost4
-    localhost4.localdomain4
-    ::1         localhost localhost.localdomain localhost6
-    localhost6.localdomain6
+    [leader]
+    bgfs1.novalocal ansible_host=172.16.1.1 ansible_user=centos
 
-    {% for item in ansible_play_hosts %}
-    {% set short_name = item.split('.') %}
-    {{ hostvars[item]['ansible_host'] }}  {{ item }} {{ short_name[0] }}
-    {% endfor %}
+    [follower]
+    bgfs2.novalocal ansible_host=172.16.1.2 ansible_user=centos
 
-Example playbook `beegfs.yml`:
+    [cluster:children]
+    leader
+    follower
+
+    [cluster_beegfs_mgmt:children]
+    leader
+
+    [cluster_beegfs_mds:children]
+    leader
+
+    [cluster_beegfs_oss:children]
+    leader
+    follower
+
+    [cluster_beegfs_client:children]
+    leader
+    follower
+
+And a corresponding playbook as this (`beegfs.yml`):
 
     ---
     - hosts: cluster
@@ -55,40 +64,6 @@ Example playbook `beegfs.yml`:
           beegfs_state: present
     ...
 
-Corresponding example inventory `inventory-beegfs`:
-
-    [leader]
-    bgfs1.novalocal ansible_host=172.16.1.6 ansible_user=centos
-
-    [follower]
-    bgfs2.novalocal ansible_host=172.16.1.2 ansible_user=centos
-
-    [cluster:children]
-    leader
-    follower
-
-    [cluster_beegfs_mgmt:children]
-    leader
-
-    [cluster_beegfs_mds:children]
-    leader
-
-    [cluster_beegfs_oss:children]
-    leader
-    follower
-
-    [cluster_beegfs_client:children]
-    leader
-    follower
-
-Where the groups can be interpreted as:
-
-- `cluster_beegfs_mgmt` (Management server - minimum one host)
-- `cluster_beegfs_mds` (Metadata storage server nodes)
-- `cluster_beegfs_oss` (Object storage server nodes)
-- `cluster_beegfs_client` (Clients of the BeeGFS storage cluster)
-- `cluster_beegfs_admon` (NOT IMPLEMENTED)
-
 To create a cluster:
 
     # ansible-playbook beegfs.yml -i inventory-beegfs -e beegfs_state=present
@@ -97,3 +72,19 @@ To destroy a cluster:
 
     # ansible-playbook beegfs.yml -i inventory-beegfs -e beegfs_state=absent
 
+## Notes
+
+Enabling various BeegFS services is as simple as configuring toggles
+under `beegfs_enable` to `yes` or `no` where:
+
+- `mgmt`: Management server - minimum one host
+- `mds`: Metadata storage server nodes
+- `oss`: Object storage server nodes
+- `client`: Clients of the BeeGFS storage cluster
+- `admon`: NOT IMPLEMENTED
+
+Additionally, this role is dependent upon each node's hostname
+resolving to the IP address used to reach the management host, as
+configured via `beegfs_host_mgmt`. In this case, `bgsf1.novalocal` and
+`bgfs2.novalocal` must resolve to `172.16.1.1` and `172.16.1.2`
+respectively. This may be done via DNS or `/etc/hosts`.
