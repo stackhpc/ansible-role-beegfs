@@ -5,12 +5,6 @@
     state: present
   become: yes
 
-- name: Ensures BeeGFS mgmt service is not running
-  service:
-    name: beegfs-mgmtd
-    state: stopped
-  become: yes
-
 - name: Create directory for BeeGFS management service data
   file:
     path: "{{ beegfs_path_mgmt }}"

@@ -9,18 +9,10 @@
   - beegfs-helperd
   - beegfs-utils
 
-- name: Ensure the BeeGFS client services are not running
-  service:
-    name: "{{ item }}"
-    state: stopped
-  become: yes
-  with_items:
-  - beegfs-helperd
-  - beegfs-client
-
 - name: Detect the version of the running kernel
   command: "uname -r"
   register: kernel_version
+  changed_when: false
 
 - name: Define client kernel build for IB
   block:
@@ -50,14 +42,6 @@
 
 - name: Run the BeeGFS client setup script
   command: "/opt/beegfs/sbin/beegfs-setup-client -m {{ beegfs_host_mgmt }} -f" 
-  args:
-    creates: "{{ beegfs_path_client }}/originalNodeID"
-  become: yes
-
-- name: Ensure the BeeGFS mount point is unmounted
-  mount:
-    path: "{{ beegfs_path_client }}"
-    state: unmounted
   become: yes
 
 - name: Ensure the BeeGFS mount point exists

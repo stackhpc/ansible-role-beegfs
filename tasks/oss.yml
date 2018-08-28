@@ -52,9 +52,9 @@
   when: beegfs_dev_oss is defined
 
 - name: Run storage service setup script
-  var:
-    replace_flag: "{% if (item == beegfs_dev_oss[0]) and (beegfs_force_format | bool) %} -r {% endif %}"
-  command: "/opt/beegfs/sbin/beegfs-setup-storage -p {{ beegfs_path_oss }}/{{ item }} -m {{ beegfs_host_mgmt }}{{ replace_flag }} -f"
+  vars:
+    replace_flag: "{% if (item == beegfs_path_oss[0]) and (beegfs_force_format | bool) %} -r {% endif %}"
+  command: "/opt/beegfs/sbin/beegfs-setup-storage -p {{ item }} -m {{ beegfs_host_mgmt }}{{ replace_flag }} -f"
   args:
     creates: "{{ item }}/originalNodeID"
   with_items: "{{ beegfs_path_oss }}"

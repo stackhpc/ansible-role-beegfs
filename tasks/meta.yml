@@ -5,12 +5,6 @@
     state: present
   become: yes
 
-- name: Ensures BeeGFS meta service is not running
-  service:
-    name: beegfs-meta
-    state: stopped
-  become: yes
-
 - name: Create directory for BeeGFS metadata
   file:
     path: "{{ beegfs_path_meta }}"
@@ -36,18 +30,6 @@
       state: mounted
   become: yes
   when: beegfs_dev_meta is defined
-
-- name: Run metadata service setup script
-  command: "/opt/beegfs/sbin/beegfs-setup-meta -p {{ beegfs_path_meta }} -m {{ beegfs_host_mgmt }} -f"
-  args:
-    creates: "{{ beegfs_path_meta }}/originalNodeID"
-  become: yes
-  when: not (beegfs_force_format | bool)
-
-- name: Run metadata service setup script when beegfs_force_format is true
-  command: "/opt/beegfs/sbin/beegfs-setup-meta -p {{ beegfs_path_meta }} -m {{ beegfs_host_mgmt }} -f"
-  become: yes
-  when: beegfs_force_format | bool
 
 - name: Run metadata service setup script
   command: "/opt/beegfs/sbin/beegfs-setup-meta -p {{ beegfs_path_meta }} -m {{ beegfs_host_mgmt }} -f"

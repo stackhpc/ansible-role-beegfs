@@ -1,4 +1,5 @@
 ---
+- debug: var=beegfs_path_oss
 - name: If beegfs_state is present
   include: create.yml
   when: beegfs_state | lower == "present"
