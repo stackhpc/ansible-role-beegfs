@@ -7,8 +7,7 @@ beegfs_rdma: yes
 beegfs_path_client: "/mnt/beegfs"
 beegfs_path_mgmt: "/data/beegfs/beegfs_mgmtd"
 beegfs_path_meta: "/data/beegfs/beegfs_meta"
-beegfs_path_oss: "/data/beegfs/beegfs_oss"
-beegfs_path_dev: "/dev"
+beegfs_path_oss: []
 
 beegfs_host_mgmt: ""
 
@@ -33,7 +32,7 @@ beegfs_force_format: no
 beegfs_fstype: "xfs"
 
 # Network interfaces in order of preference
-# (leaving empty prefers infiniband and RDMA devices first)
+# (leaving empty means InfiniBand & RDMA enabled devices are preferred)
 beegfs_interfaces: []
 
 beegfs_state: present

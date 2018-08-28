@@ -8,6 +8,7 @@
   - beegfs-client
   - beegfs-helperd
   - beegfs-utils
+  notify: Enable and start BeeGFS client service
 
 - name: Detect the version of the running kernel
   command: "uname -r"
@@ -21,10 +22,12 @@
       path: "/etc/beegfs/beegfs-client-autobuild.conf"
       regexp: "^buildArgs="
       line: "buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1"
+    notify: Enable and start BeeGFS client service
   - name: Ensure kernel development headers are present
     package:
       name: "kernel-devel-{{ kernel_version.stdout }}"
       state: present
+    notify: Enable and start BeeGFS client service
   become: yes
   when: beegfs_rdma | bool
 
@@ -33,22 +36,26 @@
     name: "gcc"
     state: present
   become: yes
+  notify: Enable and start BeeGFS client service
 
 - name: Rebuild the BeeGFS client kernel module
   command: /etc/init.d/beegfs-client rebuild
   args:
     creates: "/lib/modules/{{kernel_version.stdout}}/updates/fs/beegfs_autobuild/beegfs.ko"
   become: yes
+  notify: Enable and start BeeGFS client service
 
 - name: Run the BeeGFS client setup script
   command: "/opt/beegfs/sbin/beegfs-setup-client -m {{ beegfs_host_mgmt }} -f" 
   become: yes
+  notify: Enable and start BeeGFS client service
 
 - name: Ensure the BeeGFS mount point exists
   file:
     path: "{{ beegfs_path_client }}"
     state: directory
   become: yes
+  notify: Enable and start BeeGFS client service
 
 - name: Define BeeGFS mount point in mount config file
   template:
@@ -56,6 +63,7 @@
     dest: "/etc/beegfs/beegfs-mounts.conf"
     mode: 0644
   become: yes 
+  notify: Enable and start BeeGFS client service
 
 - name: Specify connInterfacesFile
   lineinfile:
@@ -63,4 +71,5 @@
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
   become: yes
+  notify: Enable and start BeeGFS client service
 ...
