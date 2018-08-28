@@ -7,41 +7,57 @@
 
 - name: Create a list of devices that are mounted
   set_fact:
-    mounted_path_dev_items: "{{ ansible_mounts | map(attribute='device') | list }}"
+    mounted_devs: "{{ ansible_mounts | map(attribute='device') | list }}"
 
 - name: Ensures BeeGFS storage service is not running
   service:
-    name: beegfs-storage
+    name: "{{ item }}"
     state: stopped
+  with_items:
+  - beegfs-client
+  - beegfs-storage
   become: yes
+  when: beegfs_force_format | bool
 
 - name: Prepare storage devices
   block:
-  - name: Attempt to format if the device is not mounted
-    vars:
-      path_dev_item: "{{ beegfs_path_dev }}/{{ item }}"
+  - name: Unmount storage device if beegfs_force_format is true
+    mount:
+      src: "{{ item.0 }}"
+      path: "{{ item.1 }}"
+      state: unmounted
+    when: beegfs_force_format | bool
+    with_together:
+    - "{{ beegfs_dev_oss }}"
+    - "{{ beegfs_path_oss }}"
+  - name: Attempt to format if the device is not mounted or if beegfs_force_format is true
     filesystem:
-      dev: "{{ path_dev_item }}"
+      dev: "{{ item }}"
       fstype: "{{ beegfs_fstype }}"
-    when: path_dev_item not in mounted_path_dev_items
+      force: "{{ beegfs_force_format | bool }}"
+    when: (item not in mounted_devs) or
+          (beegfs_force_format | bool)
     with_items:
     - "{{ beegfs_dev_oss }}"
   - name: Mount filesystem, fail if the fstype doesn't match
     mount:
-      src: "{{ beegfs_path_dev }}/{{ item }}"
-      path: "{{ beegfs_path_oss }}/{{ item }}"
+      src: "{{ item.0 }}"
+      path: "{{ item.1 }}"
       fstype: "{{ beegfs_fstype }}"
       state: mounted
-    with_items:
+    with_together:
     - "{{ beegfs_dev_oss }}"
+    - "{{ beegfs_path_oss }}"
   become: yes
   when: beegfs_dev_oss is defined
 
 - name: Run storage service setup script
-  command: "/opt/beegfs/sbin/beegfs-setup-storage -p {{ beegfs_path_oss }}/{{ item }} -m {{ beegfs_host_mgmt }} -f"
+  var:
+    replace_flag: "{% if (item == beegfs_dev_oss[0]) and (beegfs_force_format | bool) %} -r {% endif %}"
+  command: "/opt/beegfs/sbin/beegfs-setup-storage -p {{ beegfs_path_oss }}/{{ item }} -m {{ beegfs_host_mgmt }}{{ replace_flag }} -f"
   args:
-    creates: "{{ beegfs_path_oss }}/{{ item }}/originalNodeID"
-  with_items: "{{ beegfs_dev_oss }}"
+    creates: "{{ item }}/originalNodeID"
+  with_items: "{{ beegfs_path_oss }}"
   become: yes
 
 - name: Specify connInterfacesFile

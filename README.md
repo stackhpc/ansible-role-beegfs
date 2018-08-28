@@ -39,6 +39,11 @@ And a corresponding playbook as this (`beegfs.yml`):
 
     ---
     - hosts: cluster
+      vars:
+        devs:
+        - "sdb"
+        - "sdc"
+        - "sdd"
       roles:
         - role: stackhpc.beegfs
           beegfs_enable:
@@ -48,6 +53,7 @@ And a corresponding playbook as this (`beegfs.yml`):
             oss: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
             client: "{{ inventory_hostname in groups['cluster_beegfs_client'] }}"
           beegfs_rdma: yes
+          beegfs_force_format: no
           beegfs_host_mgmt: "{{ groups['cluster_beegfs_mgmt'] | first }}"
           beegfs_path_client: "/mnt/beegfs"
           beegfs_fstype: "xfs"
@@ -57,10 +63,8 @@ And a corresponding playbook as this (`beegfs.yml`):
           #beegfs_dev_meta: "/dev/sdb"
           beegfs_path_meta: "/data/beegfs/beegfs_meta"
           # Enable to define block devices that should be formatted
-          beegfs_dev_oss:
-          - "sdb"
-          - "sdc"
-          - "sdd"
+          beegfs_dev_oss: "{{ (['/dev/'] * devs|length) | zip(devs) | map('join') | list }}"
+          beegfs_path_oss: "{{ (['/data/beegfs/beegfs_oss/'] * devs|length) | zip(devs) | map('join') | list }}"
           beegfs_state: present
     ...
 
