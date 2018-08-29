@@ -38,6 +38,7 @@
       dev: "{{ item }}"
       fstype: "{{ beegfs_fstype }}"
       force: "{{ beegfs_force_format | bool }}"
+      opts: -K
     when: (item not in mounted_devs) or
           (beegfs_force_format | bool)
     with_items:
