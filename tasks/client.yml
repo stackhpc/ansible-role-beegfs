@@ -45,11 +45,6 @@
   become: yes
   notify: Enable and start BeeGFS client service
 
-- name: Run the BeeGFS client setup script
-  command: "/opt/beegfs/sbin/beegfs-setup-client -m {{ beegfs_host_mgmt }} -f" 
-  become: yes
-  notify: Enable and start BeeGFS client service
-
 - name: Ensure the BeeGFS mount point exists
   file:
     path: "{{ beegfs_path_client }}"
@@ -57,19 +52,42 @@
   become: yes
   notify: Enable and start BeeGFS client service
 
+- name: Set BeeGFS client config path
+  set_fact:
+    beegfs_path_client_config: "/etc/beegfs/beegfs-client-{{ beegfs_host_mgmt }}.conf"
+
 - name: Define BeeGFS mount point in mount config file
-  template:
-    src: "beegfs-mounts.conf.j2"
-    dest: "/etc/beegfs/beegfs-mounts.conf"
+  lineinfile:
+    path: "/etc/beegfs/beegfs-mounts.conf"
+    regexp: "^{{ beegfs_path_client }}"
+    line: "{{ beegfs_path_client }} {{ beegfs_path_client_config }}"
     mode: 0644
   become: yes 
   notify: Enable and start BeeGFS client service
 
+- name: Stat client config file
+  stat:
+    path: "{{ beegfs_path_client_config }}"
+  register: stat_result
+
+- name: Make of copy of BeeGFS client config file if it doesn't exist
+  copy:
+    remote_src: yes
+    src: "/etc/beegfs/beegfs-client.conf"
+    dest: "{{ beegfs_path_client_config }}"
+  become: yes
+  notify: Enable and start BeeGFS client service
+  when: stat_result.stat.exists is failed
+
 - name: Specify connInterfacesFile
   lineinfile:
-    path: /etc/beegfs/beegfs-client.conf
-    regexp: "^connInterfacesFile"
-    line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
+    path: "{{ beegfs_path_client_config }}"
+    regexp: "{{ item.0 }}"
+    line: "{{ item.1 }}"
+  with_items:
+  - ["^sysMgmtdHost","sysMgmtdHost = {{ beegfs_host_mgmt }}"]
+  - ["^connClientPortUDP","connClientPortUDP = {{ beegfs_port_client }}"]
+  - ["^connInterfacesFile","connInterfacesFile = /etc/beegfs/connInterfacesFile"]
   become: yes
   notify: Enable and start BeeGFS client service
 ...

@@ -5,6 +5,8 @@ beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs-rhel7
 beegfs_rdma: yes
 
 beegfs_path_client: "/mnt/beegfs"
+beegfs_port_client: 8004
+
 beegfs_path_mgmt: "/data/beegfs/beegfs_mgmtd"
 beegfs_path_meta: "/data/beegfs/beegfs_meta"
 beegfs_path_oss: []
