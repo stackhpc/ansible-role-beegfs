@@ -8,7 +8,7 @@
   - beegfs-client
   - beegfs-helperd
   - beegfs-utils
-  notify: Enable and start BeeGFS client service
+  notify: Restart BeeGFS client service
 
 - name: Detect the version of the running kernel
   command: "uname -r"
@@ -22,12 +22,12 @@
       path: "/etc/beegfs/beegfs-client-autobuild.conf"
       regexp: "^buildArgs="
       line: "buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1"
-    notify: Enable and start BeeGFS client service
+    notify: Restart BeeGFS client service
   - name: Ensure kernel development headers are present
     package:
       name: "kernel-devel-{{ kernel_version.stdout }}"
       state: present
-    notify: Enable and start BeeGFS client service
+    notify: Restart BeeGFS client service
   become: yes
   when: beegfs_rdma | bool
 
@@ -36,58 +36,67 @@
     name: "gcc"
     state: present
   become: yes
-  notify: Enable and start BeeGFS client service
+  notify: Restart BeeGFS client service
 
 - name: Rebuild the BeeGFS client kernel module
   command: /etc/init.d/beegfs-client rebuild
   args:
     creates: "/lib/modules/{{kernel_version.stdout}}/updates/fs/beegfs_autobuild/beegfs.ko"
   become: yes
-  notify: Enable and start BeeGFS client service
+  notify: Restart BeeGFS client service
 
 - name: Ensure the BeeGFS mount point exists
   file:
-    path: "{{ beegfs_path_client }}"
+    path: "{{ item.beegfs_path_client }}"
     state: directory
   become: yes
-  notify: Enable and start BeeGFS client service
+  notify: Restart BeeGFS client service
+  with_items: "{{ beegfs_client_confs }}"
 
-- name: Set BeeGFS client config path
-  set_fact:
-    beegfs_path_client_config: "/etc/beegfs/beegfs-client-{{ beegfs_host_mgmt }}.conf"
-
-- name: Define BeeGFS mount point in mount config file
-  lineinfile:
-    path: "/etc/beegfs/beegfs-mounts.conf"
-    regexp: "^{{ beegfs_path_client }}"
-    line: "{{ beegfs_path_client }} {{ beegfs_path_client_config }}"
+- name: Copy over beegfs-mounts config file
+  template:
+    src: beegfs-mounts.conf.j2
+    dest: /etc/beegfs/beegfs-mounts.conf
     mode: 0644
   become: yes 
-  notify: Enable and start BeeGFS client service
-
-- name: Stat client config file
-  stat:
-    path: "{{ beegfs_path_client_config }}"
-  register: stat_result
+  notify: Restart BeeGFS client service
 
 - name: Make of copy of BeeGFS client config file if it doesn't exist
   copy:
     remote_src: yes
-    src: "/etc/beegfs/beegfs-client.conf"
-    dest: "{{ beegfs_path_client_config }}"
+    src: /etc/beegfs/beegfs-client.conf
+    dest: "/etc/beegfs/beegfs-client-{{ item.beegfs_host_mgmt }}.conf"
+    force: no
   become: yes
-  notify: Enable and start BeeGFS client service
-  when: stat_result.stat.exists is failed
+  with_items: "{{ beegfs_client_confs }}"
+  notify: Restart BeeGFS client service
 
-- name: Specify connInterfacesFile
+- name: Configure beegfs-client config file to ensure mount path is mounted
   lineinfile:
-    path: "{{ beegfs_path_client_config }}"
-    regexp: "{{ item.0 }}"
-    line: "{{ item.1 }}"
-  with_items:
-  - ["^sysMgmtdHost","sysMgmtdHost = {{ beegfs_host_mgmt }}"]
-  - ["^connClientPortUDP","connClientPortUDP = {{ beegfs_port_client }}"]
-  - ["^connInterfacesFile","connInterfacesFile = /etc/beegfs/connInterfacesFile"]
+    dest: "/etc/beegfs/beegfs-client-{{ item.0.beegfs_host_mgmt }}.conf"
+    regexp: "^{{ item.1.key }}"
+    line: "{{ item.1.key }} = {{ item[0][item.1.value_key] }}"
+  with_nested:
+  - "{{ beegfs_client_confs }}"
+  - - {key: sysMgmtdHost, value_key: beegfs_host_mgmt}
+    - {key: connClientPortUDP, value_key: beegfs_port_client}
   become: yes
-  notify: Enable and start BeeGFS client service
+
+- name: Configure beegfs-client config file to ensure the right connection interface is used
+  lineinfile:
+    dest: "/etc/beegfs/beegfs-client-{{ item.beegfs_host_mgmt }}.conf"
+    regexp: "^connInterfacesFile"
+    line: "connInterfacesFile = /etc/beegfs/connInterfacesFile"
+  with_items: "{{ beegfs_client_confs }}"
+  become: yes
+
+- name: Copy default beegfs-client config file if the hostname matches inventory_hostname
+  copy:
+    remote_src: yes
+    dest: /etc/beegfs/beegfs-client.conf
+    src: "/etc/beegfs/beegfs-client-{{ item.beegfs_host_mgmt }}.conf"
+    force: yes
+  with_items: "{{ beegfs_client_confs }}"
+  when: item.beegfs_host_mgmt == inventory_hostname
+  become: yes
 ...

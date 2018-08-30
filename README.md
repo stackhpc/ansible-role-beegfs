@@ -52,13 +52,15 @@ And a corresponding playbook as this (`beegfs.yml`):
           beegfs_path_oss: "{{ (['/data/beegfs/beegfs_oss/'] * beegfs_block_devices|length) | zip(beegfs_block_devices) | map('join') | list }}"
           beegfs_fstype: "xfs"
           beegfs_force_format: no
-          beegfs_host_mgmt: "{{ groups['cluster_beegfs_mgmt'] | first }}"
-          beegfs_path_client: "/mnt/beegfs"
           beegfs_interfaces: ["ib0"]
           #beegfs_dev_meta: "/dev/sdb"
           beegfs_path_meta: "/data/beegfs/beegfs_meta"
           beegfs_rdma: yes
           beegfs_state: present
+          beegfs_client_confs:
+          - beegfs_host_mgmt: "{{ groups['cluster_beegfs_mgmt'] | first }}"
+            beegfs_path_client: "/mnt/beegfs"
+            beegfs_client_port: 8004
     ...
 
 To create a cluster:

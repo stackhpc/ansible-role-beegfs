@@ -4,7 +4,7 @@
     name: beegfs-storage
     state: present
   become: yes
-  notify: Enable and start BeeGFS storage service
+  notify: Restart BeeGFS storage service
 
 - name: Create a list of devices that are mounted
   set_fact:
@@ -19,7 +19,7 @@
   - beegfs-storage
   become: yes
   when: beegfs_force_format | bool
-  notify: Enable and start BeeGFS storage service
+  notify: Restart BeeGFS storage service
 
 - name: Prepare storage devices
   block:
@@ -32,7 +32,7 @@
     with_together:
     - "{{ beegfs_dev_oss }}"
     - "{{ beegfs_path_oss }}"
-    notify: Enable and start BeeGFS storage service
+    notify: Restart BeeGFS storage service
   - name: Attempt to format if the device is not mounted or if beegfs_force_format is true
     filesystem:
       dev: "{{ item }}"
@@ -43,7 +43,7 @@
           (beegfs_force_format | bool)
     with_items:
     - "{{ beegfs_dev_oss }}"
-    notify: Enable and start BeeGFS storage service
+    notify: Restart BeeGFS storage service
   - name: Mount filesystem, fail if the fstype doesn't match
     mount:
       src: "{{ item.0 }}"
@@ -53,7 +53,7 @@
     with_together:
     - "{{ beegfs_dev_oss }}"
     - "{{ beegfs_path_oss }}"
-    notify: Enable and start BeeGFS storage service
+    notify: Restart BeeGFS storage service
   become: yes
   when: beegfs_dev_oss is defined
 
@@ -65,7 +65,7 @@
     creates: "{{ item }}/originalNodeID"
   with_items: "{{ beegfs_path_oss }}"
   become: yes
-  notify: Enable and start BeeGFS storage service
+  notify: Restart BeeGFS storage service
 
 - name: Specify connInterfacesFile
   lineinfile:
@@ -73,5 +73,5 @@
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
   become: yes
-  notify: Enable and start BeeGFS storage service
+  notify: Restart BeeGFS storage service
 ...

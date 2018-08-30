@@ -57,4 +57,19 @@
     src: connInterfacesFile.j2
     dest: /etc/beegfs/connInterfacesFile
   become: yes
+
+- name: Start and enable BeeGFS server services
+  service:
+    name: "{{ item.name }}"
+    enabled: yes
+    state: started
+  become: yes
+  when: item.enable | bool
+  with_items:
+  - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
+  - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}" }
+  - { name: beegfs-storage, enable: "{{ beegfs_enable.oss }}" }
+  - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}" }
+  - { name: beegfs-helperd, enable: "{{ beegfs_enable.client }}" }
+  - { name: beegfs-client, enable: "{{ beegfs_enable.client }}" }
 ...

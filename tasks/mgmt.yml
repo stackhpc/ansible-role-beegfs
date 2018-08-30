@@ -4,21 +4,21 @@
     name: beegfs-mgmtd
     state: present
   become: yes
-  notify: Enable and start BeeGFS mgmt service
+  notify: Restart BeeGFS mgmt service
 
 - name: Create directory for BeeGFS management service data
   file:
     path: "{{ beegfs_path_mgmt }}"
     state: directory
   become: yes
-  notify: Enable and start BeeGFS mgmt service
+  notify: Restart BeeGFS mgmt service
 
 - name: Run management service setup script
   command: "/opt/beegfs/sbin/beegfs-setup-mgmtd -p {{ beegfs_path_mgmt }} -f"
   args:
     creates: "{{ beegfs_path_mgmt }}/originalNodeID"
   become: yes
-  notify: Enable and start BeeGFS mgmt service
+  notify: Restart BeeGFS mgmt service
 
 - name: Specify connInterfacesFile
   lineinfile:
@@ -26,5 +26,5 @@
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
   become: yes
-  notify: Enable and start BeeGFS mgmt service
+  notify: Restart BeeGFS mgmt service
 ...
