@@ -71,18 +71,23 @@
   with_items: "{{ beegfs_client_confs }}"
   notify: Restart BeeGFS client service
 
-- name: Configure beegfs-client config file to ensure mount path is mounted
+- name: Configure beegfs-client config file to point to the specified management host
   lineinfile:
-    dest: "/etc/beegfs/beegfs-client-{{ item.0.beegfs_host_mgmt }}.conf"
-    regexp: "^{{ item.1.key }}"
-    line: "{{ item.1.key }} = {{ item[0][item.1.value_key] }}"
-  with_nested:
-  - "{{ beegfs_client_confs }}"
-  - - {key: sysMgmtdHost, value_key: beegfs_host_mgmt}
-    - {key: connClientPortUDP, value_key: beegfs_port_client}
+    dest: "/etc/beegfs/beegfs-client-{{ item.beegfs_host_mgmt }}.conf"
+    regexp: "^sysMgmtdHost"
+    line: "sysMgmtdHost = {{ item.beegfs_host_mgmt }}"
+  with_items: "{{ beegfs_client_confs }}"
   become: yes
 
-- name: Configure beegfs-client config file to ensure the right connection interface is used
+- name: Configure beegfs-client config file to use the specified port
+  lineinfile:
+    dest: "/etc/beegfs/beegfs-client-{{ item.beegfs_host_mgmt }}.conf"
+    regexp: "^connClientPortUDP"
+    line: "connClientPortUDP = {{ item.beegfs_port_client | default(beegfs_port_client) }}"
+  with_items: "{{ beegfs_client_confs }}"
+  become: yes
+
+- name: Configure beegfs-client config file to ensure the specifed connection interface is used
   lineinfile:
     dest: "/etc/beegfs/beegfs-client-{{ item.beegfs_host_mgmt }}.conf"
     regexp: "^connInterfacesFile"
@@ -90,7 +95,7 @@
   with_items: "{{ beegfs_client_confs }}"
   become: yes
 
-- name: Copy default beegfs-client config file if the hostname matches inventory_hostname
+- name: Copy default beegfs-client config file to enable beegfs_ctl in the management host
   copy:
     remote_src: yes
     dest: /etc/beegfs/beegfs-client.conf
