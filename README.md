@@ -12,10 +12,10 @@ The role was last tested using Ansible version 2.5.2.
 Say we have an inventory that looks like this (`inventory-beegfs`):
 
     [leader]
-    bgfs1.novalocal ansible_host=172.16.1.1 ansible_user=centos
+    bgfs1 ansible_host=172.16.1.1 ansible_user=centos
 
     [follower]
-    bgfs2.novalocal ansible_host=172.16.1.2 ansible_user=centos
+    bgfs2 ansible_host=172.16.1.2 ansible_user=centos
 
     [cluster:children]
     leader
@@ -38,29 +38,33 @@ Say we have an inventory that looks like this (`inventory-beegfs`):
 And a corresponding playbook as this (`beegfs.yml`):
 
     ---
-    - hosts: cluster
+    - hosts:
+      - cluster_beegfs_mgmt
+      - cluster_beegfs_mds
+      - cluster_beegfs_oss
+      - cluster_beegfs_client 
       roles:
-        - role: stackhpc.beegfs
-          beegfs_enable:
-            mgmt: "{{ inventory_hostname in groups['cluster_beegfs_mgmt'] }}"
-            admon: no
-            meta: "{{ inventory_hostname in groups['cluster_beegfs_mds'] }}"
-            oss: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
-            client: "{{ inventory_hostname in groups['cluster_beegfs_client'] }}"
-          beegfs_block_devices: ["sdb","sdc","sdd"]
-          beegfs_dev_oss: "{{ (['/dev/'] * beegfs_block_devices|length) | zip(beegfs_block_devices) | map('join') | list }}"
-          beegfs_path_oss: "{{ (['/data/beegfs/beegfs_oss/'] * beegfs_block_devices|length) | zip(beegfs_block_devices) | map('join') | list }}"
-          beegfs_fstype: "xfs"
-          beegfs_force_format: no
-          beegfs_interfaces: ["ib0"]
-          #beegfs_dev_meta: "/dev/sdb"
-          beegfs_path_meta: "/data/beegfs/beegfs_meta"
-          beegfs_rdma: yes
-          beegfs_state: present
-          beegfs_client_confs:
-          - beegfs_host_mgmt: "{{ groups['cluster_beegfs_mgmt'] | first }}"
-            beegfs_path_client: "/mnt/beegfs"
-            beegfs_client_port: 8004
+      - role: stackhpc.beegfs
+        beegfs_enable:
+          mgmt: "{{ inventory_hostname in groups['cluster_beegfs_mgmt'] }}"
+          admon: no
+          meta: "{{ inventory_hostname in groups['cluster_beegfs_mds'] }}"
+          oss: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
+          client: "{{ inventory_hostname in groups['cluster_beegfs_client'] }}"
+        beegfs_block_devices: ["sdb","sdc","sdd"]
+        beegfs_dev_oss: "{{ (['/dev/'] * beegfs_block_devices|length) | zip(beegfs_block_devices) | map('join') | list }}"
+        beegfs_path_oss: "{{ (['/data/beegfs/beegfs_oss/'] * beegfs_block_devices|length) | zip(beegfs_block_devices) | map('join') | list }}"
+        beegfs_fstype: "xfs"
+        beegfs_force_format: no
+        beegfs_interfaces: ["ib0"]
+        #beegfs_dev_meta: "/dev/sdb"
+        beegfs_path_meta: "/data/beegfs/beegfs_meta"
+        beegfs_rdma: yes
+        beegfs_state: present
+        beegfs_client_confs:
+        - beegfs_host_mgmt: "{{ groups['cluster_beegfs_mgmt'] | first }}"
+          beegfs_path_client: "/mnt/beegfs"
+          beegfs_port_client: 8004
     ...
 
 To create a cluster:
