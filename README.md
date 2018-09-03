@@ -91,3 +91,10 @@ resolving to the IP address used to reach the management host, as
 configured via `beegfs_host_mgmt`. In this case, `bgsf1.novalocal` and
 `bgfs2.novalocal` must resolve to `172.16.1.1` and `172.16.1.2`
 respectively. This may be done via DNS or `/etc/hosts`.
+
+It is also important to note that when provisioning the cluster, if the
+block devices specified already have a file system specified, or the
+disk is not empty, it is important to force format the disk. This can be
+set my setting `beegfs_force_format` to `yes`. THIS WILL DELETE THE
+CONTENT OF THE DISK(S). Make sure you have made backups if you care
+about their content.
