@@ -83,7 +83,7 @@
   lineinfile:
     dest: "/etc/beegfs/beegfs-client-{{ item.beegfs_host_mgmt }}.conf"
     regexp: "^connClientPortUDP"
-    line: "connClientPortUDP = {{ item.beegfs_port_client | default(beegfs_port_client }}"
+    line: "connClientPortUDP = {{ item.beegfs_port_client | default(beegfs_port_client) }}"
   with_items: "{{ beegfs_client_confs }}"
   become: yes
 
