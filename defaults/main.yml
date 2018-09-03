@@ -37,5 +37,9 @@ beegfs_fstype: "xfs"
 # (leaving empty means InfiniBand & RDMA enabled devices are preferred)
 beegfs_interfaces: []
 
+# Can be present or absent
 beegfs_state: present
+
+# Client mount configs
+beegfs_client_confs: []
 ...
