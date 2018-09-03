@@ -15,5 +15,6 @@ galaxy_info:
     - cloud
     - storage
     - beegfs
+  role_name: beegfs
 
 dependencies: []
