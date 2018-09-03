@@ -2,16 +2,14 @@
 beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs-rhel7.repo"
 
 # Define to enable support for BeeGFS data transport over RDMA (IB, OPA, RoCE)
-beegfs_rdma: True
+beegfs_rdma: yes
 
 beegfs_path_client: "/mnt/beegfs"
+beegfs_port_client: 8004
+
 beegfs_path_mgmt: "/data/beegfs/beegfs_mgmtd"
 beegfs_path_meta: "/data/beegfs/beegfs_meta"
-beegfs_path_oss:
-  - "/data/beegfs/beegfs_data_0"
-  - "/data/beegfs/beegfs_data_1"
-  - "/data/beegfs/beegfs_data_2"
-  - "/data/beegfs/beegfs_data_3"
+beegfs_path_oss: []
 
 beegfs_host_mgmt: ""
 
@@ -20,21 +18,24 @@ beegfs_host_mgmt: ""
 #beegfs_dev_oss: []
 
 beegfs_enable:
-  mgmt: False
-  meta: False
-  oss: False
-  admon: False
-  client: False
+  mgmt: no
+  meta: no
+  oss: no
+  admon: no
+  client: no
 
 # Kernel modules to ensure are loaded prior to BeeGFS deploy/startup
 beegfs_kmod_preload: []
 
 # Force format of filesystem
-beegfs_force_format: false
+beegfs_force_format: no
 
 # File system type
 beegfs_fstype: "xfs"
 
 # Network interfaces in order of preference
-# (leaving empty prefers infiniband and RDMA devices first)
+# (leaving empty means InfiniBand & RDMA enabled devices are preferred)
 beegfs_interfaces: []
+
+beegfs_state: present
+...

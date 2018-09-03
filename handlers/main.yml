@@ -1,0 +1,51 @@
+---
+- name: Restart BeeGFS mgmt service
+  service:
+    name: beegfs-mgmtd
+    state: restarted
+  become: yes
+  when: beegfs_enable.mgmt | bool
+
+- name: Restart BeeGFS meta service
+  service:
+    name: beegfs-meta
+    state: restarted
+  become: yes
+  when: beegfs_enable.meta | bool
+
+- name: Restart BeeGFS storage service
+  service:
+    name: beegfs-storage
+    state: restarted
+  become: yes
+  when: beegfs_enable.oss | bool
+  notify: Ensure that BeeGFS storage service has really started
+
+- name: Ensure that BeeGFS storage service has really started
+  service:
+    name: beegfs-storage
+    state: started
+  become: yes
+  when: beegfs_enable.oss | bool
+
+- name: Restart BeeGFS admon service
+  service:
+    name: beegfs-admon
+    state: restarted
+  become: yes
+  when: beegfs_enable.admon | bool
+
+- name: Restart BeeGFS client service
+  service:
+    name: "{{ item }}"
+    state: restarted
+  become: yes
+  with_items:
+  - beegfs-helperd
+  - beegfs-client
+  when: beegfs_enable.client | bool
+  retries: 3
+  delay: 3
+  register: result
+  until: result is success
+...

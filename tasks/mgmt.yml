@@ -3,27 +3,28 @@
   package:
     name: beegfs-mgmtd
     state: present
-  become: True
-
-- name: Ensures BeeGFS mgmt service is not running
-  service:
-    name: "beegfs-mgmtd"
-    state: "stopped"
-  become: True
+  become: yes
+  notify: Restart BeeGFS mgmt service
 
 - name: Create directory for BeeGFS management service data
   file:
     path: "{{ beegfs_path_mgmt }}"
     state: directory
-  become: True
+  become: yes
+  notify: Restart BeeGFS mgmt service
 
 - name: Run management service setup script
   command: "/opt/beegfs/sbin/beegfs-setup-mgmtd -p {{ beegfs_path_mgmt }} -f"
-  become: True
+  args:
+    creates: "{{ beegfs_path_mgmt }}/originalNodeID"
+  become: yes
+  notify: Restart BeeGFS mgmt service
 
 - name: Specify connInterfacesFile
   lineinfile:
     path: /etc/beegfs/beegfs-mgmtd.conf
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
-  become: True
+  become: yes
+  notify: Restart BeeGFS mgmt service
+...

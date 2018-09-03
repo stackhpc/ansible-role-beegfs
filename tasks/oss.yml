@@ -3,30 +3,48 @@
   package:
     name: beegfs-storage
     state: present
-  become: True
+  become: yes
+  notify: Restart BeeGFS storage service
+
+- name: Create a list of devices that are mounted
+  set_fact:
+    mounted_devs: "{{ ansible_mounts | map(attribute='device') | list }}"
 
 - name: Ensures BeeGFS storage service is not running
   service:
-    name: "beegfs-storage"
-    state: "stopped"
-  become: True
+    name: "{{ item }}"
+    state: stopped
+  with_items:
+  - beegfs-client
+  - beegfs-storage
+  become: yes
+  when: beegfs_force_format | bool
+  notify: Restart BeeGFS storage service
 
 - name: Prepare storage devices
   block:
-  - name: Ensure storage device is not currently mounted
+  - name: Unmount storage device if beegfs_force_format is true
     mount:
-      path: "{{ item }}"
+      src: "{{ item.0 }}"
+      path: "{{ item.1 }}"
       state: unmounted
-    with_items:
+    when: beegfs_force_format | bool
+    with_together:
+    - "{{ beegfs_dev_oss }}"
     - "{{ beegfs_path_oss }}"
-  - name: Format filesystem
+    notify: Restart BeeGFS storage service
+  - name: Attempt to format if the device is not mounted or if beegfs_force_format is true
     filesystem:
       dev: "{{ item }}"
       fstype: "{{ beegfs_fstype }}"
-      force: "{{ beegfs_force_format }}"
+      force: "{{ beegfs_force_format | bool }}"
+      opts: -K
+    when: (item not in mounted_devs) or
+          (beegfs_force_format | bool)
     with_items:
     - "{{ beegfs_dev_oss }}"
-  - name: Mount filesystem
+    notify: Restart BeeGFS storage service
+  - name: Mount filesystem, fail if the fstype doesn't match
     mount:
       src: "{{ item.0 }}"
       path: "{{ item.1 }}"
@@ -35,26 +53,25 @@
     with_together:
     - "{{ beegfs_dev_oss }}"
     - "{{ beegfs_path_oss }}"
-  become: True
+    notify: Restart BeeGFS storage service
+  become: yes
   when: beegfs_dev_oss is defined
 
-- name: Clear storeStorageDirectory
-  lineinfile:
-    path: /etc/beegfs/beegfs-storage.conf
-    regexp: "^storeStorageDirectory"
-    line: "storeStorageDirectory        ="
-  become: True
-
 - name: Run storage service setup script
-  command: "/opt/beegfs/sbin/beegfs-setup-storage -p {{ item }} -m {{ beegfs_host_mgmt }} -f"
+  vars:
+    replace_flag: "{% if (item == beegfs_path_oss[0]) and (beegfs_force_format | bool) %} -r {% endif %}"
+  command: "/opt/beegfs/sbin/beegfs-setup-storage -p {{ item }} -m {{ beegfs_host_mgmt }}{{ replace_flag }} -f"
   args:
-    #creates: "{{ item }}/nodeNumID"
+    creates: "{{ item }}/originalNodeID"
   with_items: "{{ beegfs_path_oss }}"
-  become: True
+  become: yes
+  notify: Restart BeeGFS storage service
 
 - name: Specify connInterfacesFile
   lineinfile:
     path: /etc/beegfs/beegfs-storage.conf
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
-  become: True
+  become: yes
+  notify: Restart BeeGFS storage service
+...
