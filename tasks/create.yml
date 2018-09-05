@@ -72,4 +72,8 @@
   - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}" }
   - { name: beegfs-helperd, enable: "{{ beegfs_enable.client }}" }
   - { name: beegfs-client, enable: "{{ beegfs_enable.client }}" }
+  retries: 3
+  delay: 3
+  register: result
+  until: result is success
 ...
