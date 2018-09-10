@@ -10,16 +10,38 @@
   set_fact:
     mounted_devs: "{{ ansible_mounts | map(attribute='device') | list }}"
 
-- name: Ensures BeeGFS storage service is not running
+- name: Ensures BeeGFS client service is not running
   service:
-    name: "{{ item }}"
+    name: beegfs-client
     state: stopped
-  with_items:
-  - beegfs-client
-  - beegfs-storage
   become: yes
   when: beegfs_force_format | bool
   notify: Restart BeeGFS storage service
+
+- name: Ensures BeeGFS storage services are not running
+  service:
+    name: "beegfs-storage@{{ item }}"
+    state: stopped
+  with_items: "{{ beegfs_block_devices }}"
+  become: yes
+  when: beegfs_force_format | bool
+  notify: Restart BeeGFS storage service
+
+- name: Create storage config dirs
+  file:
+    path: "/etc/beegfs/{{ item }}.d/"
+    state: directory
+  loop: "{{ beegfs_block_devices }}"
+  become: yes
+
+- name: Add template beegfs-storage conf
+  copy:
+    src: "/etc/beegfs/beegfs-storage.conf"
+    dest: "/etc/beegfs/{{ item }}.d/beegfs-storage.conf"
+    remote_src: yes
+    force: no
+  loop: "{{ beegfs_block_devices }}"
+  become: yes
 
 - name: Prepare storage devices
   block:
@@ -60,10 +82,41 @@
 - name: Run storage service setup script
   vars:
     replace_flag: "{% if (item == beegfs_path_oss[0]) and (beegfs_force_format | bool) %} -r {% endif %}"
-  command: "/opt/beegfs/sbin/beegfs-setup-storage -p {{ item }} -m {{ beegfs_host_mgmt }}{{ replace_flag }} -f"
+  command: |
+    /opt/beegfs/sbin/beegfs-setup-storage \
+    -p {{ item.0 }} \
+    -m {{ beegfs_host_mgmt }} \
+    -c /etc/beegfs/{{ item.1 }}.d/beegfs-storage.conf \
+    -I {{ beegfs_host_mgmt }}-{{ item.1 }}
+    -S {{ beegfs_host_mgmt }}-{{ item.1 }}
+    {{ replace_flag }} -f
   args:
-    creates: "{{ item }}/originalNodeID"
-  with_items: "{{ beegfs_path_oss }}"
+    creates: "{{ item.0 }}/originalNodeID"
+  with_together:
+  - "{{ beegfs_path_oss }}"
+  - "{{ beegfs_block_devices }}"
+  become: yes
+  notify: Restart BeeGFS storage service
+
+- name: set TCP storage port
+  lineinfile:
+    path: "/etc/beegfs/{{ item.0 }}.d/beegfs-storage.conf"
+    regexp: '^connStoragePortTCP'
+    line: "connStoragePortTCP = {{ item.1 }}"
+  with_together:
+  - "{{ beegfs_block_devices }}"
+  - "{{ beegfs_port_oss }}"
+  become: yes
+  notify: Restart BeeGFS storage service
+
+- name: set UDP storage port
+  lineinfile:
+    path: "/etc/beegfs/{{ item.0 }}.d/beegfs-storage.conf"
+    regexp: '^connStoragePortUDP'
+    line: "connStoragePortUDP = {{ item.1 }}"
+  with_together:
+  - "{{ beegfs_block_devices }}"
+  - "{{ beegfs_port_oss }}"
   become: yes
   notify: Restart BeeGFS storage service
 

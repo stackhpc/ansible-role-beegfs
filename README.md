@@ -52,8 +52,6 @@ And a corresponding playbook as this (`beegfs.yml`):
           oss: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
           client: "{{ inventory_hostname in groups['cluster_beegfs_client'] }}"
         beegfs_block_devices: ["sdb","sdc","sdd"]
-        beegfs_dev_oss: "{{ (['/dev/'] * beegfs_block_devices|length) | zip(beegfs_block_devices) | map('join') | list }}"
-        beegfs_path_oss: "{{ (['/data/beegfs/beegfs_oss/'] * beegfs_block_devices|length) | zip(beegfs_block_devices) | map('join') | list }}"
         beegfs_fstype: "xfs"
         beegfs_force_format: no
         beegfs_interfaces: ["ib0"]

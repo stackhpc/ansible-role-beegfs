@@ -15,9 +15,10 @@
 
 - name: Restart BeeGFS storage service
   service:
-    name: beegfs-storage
+    name: "beegfs-storage@{{ item }}"
     state: restarted
   become: yes
+  loop: "{{ beegfs_block_devices }}"
   when: beegfs_enable.oss | bool
   notify: Ensure that BeeGFS storage service has really started
 
