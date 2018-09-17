@@ -1,0 +1,45 @@
+---
+# BeeGFS tuning parameters
+# from https://www.beegfs.io/wiki/StorageServerTuning
+- name: BeeGFS tuning parameters
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: yes
+    reload: yes
+    sysctl_set: yes
+  with_items:
+  - {key:"vm.dirty_background_ratio",value:"5"}
+  - {key:"vm.dirty_ratio",value:"20"}
+  - {key:"vm.vfs_cache_pressure",value:"50"}
+  - {key:"vm.min_free_kbytes",value:"262144"}
+  - {key:"vm.zone_reclaim_mode",value:"1"}
+  become: yes
+
+- name: Copy rc.local
+  blockinfile:
+    dest: /etc/rc.d/rc.local
+    mode: a+x
+    marker: "# BeeGFS tuning parameters ({{ ansible_managed }})"
+    content: |
+      # BeeGFS tuning parameters ({{ ansible_managed }}"
+      # from https://www.beegfs.io/wiki/StorageServerTuning
+      echo always > /sys/kernel/mm/transparent_hugepage/enabled
+      echo always > /sys/kernel/mm/transparent_hugepage/defrag
+      for dev in {{ beegfs_block_devices | join(' ') }}
+      do
+        echo mq-deadline > /sys/block/${dev}/queue/scheduler
+        echo 2048 > /sys/block/${dev}/queue/nr_requests
+        echo 4096 > /sys/block/${dev}/queue/read_ahead_kb
+        echo 256 > /sys/block/${dev}/queue/max_sectors_kb
+      done
+  become: yes
+  notify: Restart rc.local
+
+- name: Enable rc-local
+  service:
+    name: rc-local
+    state: started
+    enabled: yes
+  become: yes
+...
