@@ -52,6 +52,8 @@
 - include: client.yml
   when: beegfs_enable.client | bool and beegfs_path_client not in ansible_mounts
 
+- include: tuning.yml
+
 - name: Create connInterfacesFile
   template:
     src: connInterfacesFile.j2

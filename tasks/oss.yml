@@ -60,7 +60,7 @@
       dev: "{{ item }}"
       fstype: "{{ beegfs_fstype }}"
       force: "{{ beegfs_force_format | bool }}"
-      opts: -K
+      opts: -K -d su=128k,sw=8 -l version=2,su=128k -isize=512
     when: (item not in mounted_devs) or
           (beegfs_force_format | bool)
     with_items:
@@ -72,6 +72,7 @@
       path: "{{ item.1 }}"
       fstype: "{{ beegfs_fstype }}"
       state: mounted
+      opts: noatime,nodiratime,logbufs=8,logbsize=256k,largeio,inode64,swalloc,allocsize=131072k,nobarrier      
     with_together:
     - "{{ beegfs_dev_oss }}"
     - "{{ beegfs_path_oss }}"

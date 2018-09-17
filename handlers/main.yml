@@ -49,4 +49,10 @@
   delay: 3
   register: result
   until: result is success
+
+- name: Restart rc-local
+  service:
+    name: rc-local
+    state: restarted
+  become: yes
 ...
