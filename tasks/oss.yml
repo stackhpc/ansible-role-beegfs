@@ -81,16 +81,15 @@
   when: beegfs_dev_oss is defined
 
 - name: Run storage service setup script
-  vars:
-    replace_flag: "{% if (item == beegfs_path_oss[0]) and (beegfs_force_format | bool) %} -r {% endif %}"
   command: |
     /opt/beegfs/sbin/beegfs-setup-storage \
     -p {{ item.0 }} \
     -m {{ beegfs_host_mgmt }} \
     -c /etc/beegfs/{{ item.1 }}.d/beegfs-storage.conf \
-    -I {{ beegfs_host_mgmt }}-{{ item.1 }}
-    -S {{ beegfs_host_mgmt }}-{{ item.1 }}
-    {{ replace_flag }} -f
+    -I {{ beegfs_host_mgmt }}-{{ item.1 }} \
+    -S {{ beegfs_host_mgmt }}-{{ item.1 }} \
+    -r \
+    -f
   args:
     creates: "{{ item.0 }}/originalNodeID"
   with_together:
@@ -98,6 +97,10 @@
   - "{{ beegfs_block_devices }}"
   become: yes
   notify: Restart BeeGFS storage service
+- debug: msg="{{ item.0 }}/originalNodeID"
+  with_together:
+  - "{{ beegfs_path_oss }}"
+  - "{{ beegfs_block_devices }}"
 
 - name: set TCP storage port
   lineinfile:
