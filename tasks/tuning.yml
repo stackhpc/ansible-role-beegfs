@@ -20,9 +20,8 @@
   blockinfile:
     dest: /etc/rc.d/rc.local
     mode: a+x
-    marker: "# BeeGFS tuning parameters"
-    content: |
-      # BeeGFS tuning parameters
+    marker: "# {mark} BeeGFS tuning parameters"
+    block: |
       # from https://www.beegfs.io/wiki/StorageServerTuning
       echo always > /sys/kernel/mm/transparent_hugepage/enabled
       echo always > /sys/kernel/mm/transparent_hugepage/defrag
