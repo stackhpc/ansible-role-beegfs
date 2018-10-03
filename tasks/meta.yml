@@ -15,20 +15,22 @@
 
 - name: Prepare metadata block storage
   block:
-  vars:
-    meta_fstype: "{{ beegfs_meta.fstype | default(beegfs_fstype) }}"
   - name: Ensure storage device is not currently mounted
     mount:
       path: "{{ beegfs_meta.path }}"
       state: unmounted
     notify: Restart BeeGFS meta service
   - name: Format filesystem
+    vars:
+      meta_fstype: "{{ beegfs_meta.fstype | default(beegfs_fstype) }}"
     filesystem:
       dev: "{{ beegfs_meta.dev }}"
       fstype: "{{ meta_fstype }}"
       force: "{{ beegfs_force_format }}"
     notify: Restart BeeGFS meta service
   - name: Mount filesystem
+    vars:
+      meta_fstype: "{{ beegfs_meta.fstype | default(beegfs_fstype) }}"
     mount:
       src: "{{ beegfs_meta.dev }}"
       path: "{{ beegfs_meta.path }}"

@@ -71,12 +71,13 @@
 
 - name: Remove all beegfs oss folders
   vars:
-    oss_path: "{{ beegfs_oss_path }}/{{ item.dev }}"
+    oss_path: "{{ beegfs_oss_path +'/' + item.dev }}"
   file:
     path: "{{ oss_path }}"
     state: absent
   become: yes
   with_items: "{{ beegfs_oss }}"
+  when:
   - beegfs_enable.oss | bool
   - item.dev is defined
 
