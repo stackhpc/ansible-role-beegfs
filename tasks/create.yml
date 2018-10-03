@@ -37,6 +37,16 @@
   when: not modules_load_stat.stat.exists
   with_items: "{{ beegfs_kmod_preload }}"
 
+- name: Ensures BeeGFS client service is not running if force_format is requested
+  service:
+    name: beegfs-client
+    state: stopped
+  become: yes
+  when:
+  - beegfs_force_format | bool
+  - beegfs_enable.oss | bool
+  - beegfs_enable.client | bool
+
 - include: mgmt.yml
   when: beegfs_enable.mgmt | bool
 
@@ -53,7 +63,7 @@
   when: beegfs_enable.oss | bool
 
 - include: client.yml
-  when: beegfs_enable.client | bool and beegfs_path_client not in ansible_mounts
+  when: beegfs_enable.client | bool
 
 - name: Create connInterfacesFile
   template:

@@ -10,14 +10,6 @@
   set_fact:
     mounted_devs: "{{ ansible_mounts | map(attribute='device') | list }}"
 
-- name: Ensures BeeGFS client service is not running
-  service:
-    name: beegfs-client
-    state: stopped
-  become: yes
-  when: beegfs_force_format | bool
-  notify: Restart BeeGFS storage service
-
 - name: (for backward compatibility)
   service:
     name: "beegfs-storage@{{ item.dev }}"

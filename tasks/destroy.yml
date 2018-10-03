@@ -7,7 +7,7 @@
   when: beegfs_enable.client | bool
   with_items: "{{ beegfs_client }}"
 
-- name: Start and enable BeeGFS client services
+- name: Stop and disable BeeGFS client services
   service:
     name: "{{ item.name }}"
     enabled: no
