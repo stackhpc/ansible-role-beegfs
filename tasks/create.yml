@@ -49,10 +49,11 @@
 - include: oss.yml
   when: beegfs_enable.oss | bool
 
+- include: tuning.yml
+  when: beegfs_enable.oss | bool
+
 - include: client.yml
   when: beegfs_enable.client | bool and beegfs_path_client not in ansible_mounts
-
-- include: tuning.yml
 
 - name: Create connInterfacesFile
   template:
@@ -74,12 +75,12 @@
 
 - name: Start and enable BeeGFS storage services
   service:
-    name: "beegfs-storage@{{ item }}"
+    name: "beegfs-storage@{{ item.dev }}"
     enabled: yes
     state: started
   become: yes
   when: beegfs_enable.oss | bool
-  with_items: "{{ beegfs_block_devices }}"
+  with_items: "{{ beegfs_oss }}"
 
 - name: Start and enable BeeGFS client services
   service:

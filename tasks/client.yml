@@ -47,11 +47,11 @@
 
 - name: Ensure the BeeGFS mount point exists
   file:
-    path: "{{ item.beegfs_path_client }}"
+    path: "{{ item.path }}"
     state: directory
   become: yes
   notify: Restart BeeGFS client service
-  with_items: "{{ beegfs_client_confs }}"
+  with_items: "{{ beegfs_client }}"
 
 - name: Copy over beegfs-mounts config file
   template:
@@ -62,46 +62,56 @@
   notify: Restart BeeGFS client service
 
 - name: Make of copy of BeeGFS client config file if it doesn't exist
+  vars:
+    mgmt_host: "{{ item.mgmt_host | default(beegfs_mgmt.host) }}"
   copy:
     remote_src: yes
     src: /etc/beegfs/beegfs-client.conf
-    dest: "/etc/beegfs/beegfs-client-{{ item.beegfs_host_mgmt }}.conf"
+    dest: "/etc/beegfs/beegfs-client-{{ mgmt_host }}.conf"
     force: no
   become: yes
-  with_items: "{{ beegfs_client_confs }}"
+  with_items: "{{ beegfs_client }}"
   notify: Restart BeeGFS client service
 
 - name: Configure beegfs-client config file to point to the specified management host
+  vars:
+    mgmt_host: "{{ item.mgmt_host | default(beegfs_mgmt.host) }}"
   lineinfile:
-    dest: "/etc/beegfs/beegfs-client-{{ item.beegfs_host_mgmt }}.conf"
+    dest: "/etc/beegfs/beegfs-client-{{ mgmt_host }}.conf"
     regexp: "^sysMgmtdHost"
-    line: "sysMgmtdHost = {{ item.beegfs_host_mgmt }}"
-  with_items: "{{ beegfs_client_confs }}"
+    line: "sysMgmtdHost = {{ mgmt_host }}"
+  with_items: "{{ beegfs_client }}"
   become: yes
 
 - name: Configure beegfs-client config file to use the specified port
+  vars:
+    mgmt_host: "{{ item.mgmt_host | default(beegfs_mgmt.host) }}"
   lineinfile:
-    dest: "/etc/beegfs/beegfs-client-{{ item.beegfs_host_mgmt }}.conf"
+    dest: "/etc/beegfs/beegfs-client-{{ mgmt_host }}.conf"
     regexp: "^connClientPortUDP"
-    line: "connClientPortUDP = {{ item.beegfs_port_client | default(beegfs_port_client) }}"
-  with_items: "{{ beegfs_client_confs }}"
+    line: "connClientPortUDP = {{ item.port }}"
+  with_items: "{{ beegfs_client }}"
   become: yes
 
 - name: Configure beegfs-client config file to ensure the specifed connection interface is used
+  vars:
+    mgmt_host: "{{ item.mgmt_host | default(beegfs_mgmt.host) }}"
   lineinfile:
-    dest: "/etc/beegfs/beegfs-client-{{ item.beegfs_host_mgmt }}.conf"
+    dest: "/etc/beegfs/beegfs-client-{{ mgmt_host }}.conf"
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile = /etc/beegfs/connInterfacesFile"
-  with_items: "{{ beegfs_client_confs }}"
+  with_items: "{{ beegfs_client }}"
   become: yes
 
 - name: Copy default beegfs-client config file to enable beegfs_ctl in the management host
+  vars:
+    mgmt_host: "{{ item.mgmt_host | default(beegfs_mgmt.host) }}"
   copy:
     remote_src: yes
     dest: /etc/beegfs/beegfs-client.conf
-    src: "/etc/beegfs/beegfs-client-{{ item.beegfs_host_mgmt }}.conf"
+    src: "/etc/beegfs/beegfs-client-{{ mgmt_host }}.conf"
     force: yes
-  with_items: "{{ beegfs_client_confs }}"
-  when: item.beegfs_host_mgmt == inventory_hostname
+  with_items: "{{ beegfs_client }}"
+  when: mgmt_host == inventory_hostname
   become: yes
 ...
