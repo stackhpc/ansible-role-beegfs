@@ -59,7 +59,7 @@
 
 - name: Unmount BeeGFS oss paths if mounted
   vars:
-    oss_path: "{{ beegfs_oss_path }}/{{ item.dev }}"
+    oss_path: "{{ beegfs_oss_path_prefix }}/{{ item.dev }}"
   mount:
     path: "{{ oss_path }}"
     state: unmounted
@@ -71,7 +71,7 @@
 
 - name: Remove all beegfs oss folders
   vars:
-    oss_path: "{{ beegfs_oss_path +'/' + item.dev }}"
+    oss_path: "{{ beegfs_oss_path_prefix +'/' + item.dev }}"
   file:
     path: "{{ oss_path }}"
     state: absent

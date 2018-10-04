@@ -18,16 +18,16 @@
   with_items: "{{ beegfs_oss }}"
   become: yes
   when: beegfs_force_format | bool
-  notify: restart beegfs storage service
+  notify: Restart BeeGFS storage service
 
-- name: ensures beegfs storage services are not running
+- name: Ensures BeeGFS storage services are not running
   service:
     name: "beegfs-storage@{{ item.port }}"
     state: stopped
   with_items: "{{ beegfs_oss }}"
   become: yes
   when: beegfs_force_format | bool
-  notify: restart beegfs storage service
+  notify: Restart BeeGFS storage service
 
 - name: Create storage config dirs
   file:
@@ -35,6 +35,7 @@
     state: directory
   loop: "{{ beegfs_oss }}"
   become: yes
+  notify: Restart BeeGFS storage service
 
 - name: Add template beegfs-storage conf
   copy:
@@ -44,6 +45,7 @@
     force: no
   loop: "{{ beegfs_oss }}"
   become: yes
+  notify: Restart BeeGFS storage service
 
 - name: Prepare storage devices
   block:
@@ -103,10 +105,9 @@
     -f
   args:
     creates: "{{ oss_path }}/originalNodeID"
+  with_items: "{{ beegfs_oss }}"
   become: yes
   notify: Restart BeeGFS storage service
-  with_together:
-  - "{{ beegfs_oss }}"
 
 - name: set TCP storage port
   vars:

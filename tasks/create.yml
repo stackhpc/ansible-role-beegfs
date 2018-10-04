@@ -37,15 +37,36 @@
   when: not modules_load_stat.stat.exists
   with_items: "{{ beegfs_kmod_preload }}"
 
-- name: Ensures BeeGFS client service is not running if force_format is requested
-  service:
-    name: beegfs-client
-    state: stopped
-  become: yes
-  when:
-  - beegfs_force_format | bool
-  - beegfs_enable.oss | bool
-  - beegfs_enable.client | bool
+- name: Stop and delete server and client service
+  block:
+  - name: Ensures BeeGFS client service is not running if force_format is requested
+    service:
+      name: beegfs-client
+      state: stopped
+    become: yes
+    when:
+    - beegfs_enable.oss | bool
+    - beegfs_enable.client | bool
+  - name: Stop and disable BeeGFS server services
+    service:
+      name: "{{ item.name }}"
+      state: stopped
+    become: yes
+    when: item.enable | bool
+    with_items:
+    - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
+    - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}" }
+    - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}" }
+  - name: Remove other beegfs folders
+    file:
+      path: "{{ item.name }}"
+      state: absent
+    become: yes
+    when: item.enable | bool
+    with_items:
+    - { name: "{{ beegfs_meta.path }}", enable: "{{ beegfs_enable.meta }}" } 
+    - { name: "{{ beegfs_mgmt.path }}", enable: "{{ beegfs_enable.mgmt }}" }
+  when: beegfs_force_format | bool
 
 - include: mgmt.yml
   when: beegfs_enable.mgmt | bool
@@ -85,7 +106,7 @@
 
 - name: Start and enable BeeGFS storage services
   service:
-    name: "beegfs-storage@{{ item.dev }}"
+    name: "beegfs-storage@{{ item.port }}"
     enabled: yes
     state: started
   become: yes

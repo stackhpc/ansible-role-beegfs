@@ -25,7 +25,7 @@
       # from https://www.beegfs.io/wiki/StorageServerTuning
       echo always > /sys/kernel/mm/transparent_hugepage/enabled
       echo always > /sys/kernel/mm/transparent_hugepage/defrag
-      for dev in {{ beegfs_block_devices | join(' ') }}
+      for dev in {{ beegfs_oss | map(attribute='dev') | join(' ') }}
       do
         echo mq-deadline > /sys/block/${dev}/queue/scheduler
         echo 2048 > /sys/block/${dev}/queue/nr_requests
