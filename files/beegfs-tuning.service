@@ -1,0 +1,12 @@
+[Unit]
+Description=BeeGFS Tuning Service
+Documentation=http://www.beegfs.com/content/documentation/
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/bin/bash /opt/beegfs/beegfs-tuning.sh
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

@@ -51,9 +51,9 @@
   register: result
   until: result is success
 
-- name: Restart rc-local
+- name: Restart BeeGFS tuning service
   service:
-    name: rc-local
+    name: beegfs-tuning
     state: restarted
   become: yes
 ...

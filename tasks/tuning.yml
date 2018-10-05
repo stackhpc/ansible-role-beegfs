@@ -16,11 +16,29 @@
   - {key: 'vm.zone_reclaim_mode', value: '1'}
   become: yes
 
-- name: Copy rc.local
+- name: Copy beegfs-tuning.sh to /opt/beegfs/
+  template:
+    src: beegfs-tuning.sh.j2
+    dest: /opt/beegfs/beegfs-tuning.sh
+    mode: a+x
+  become: yes
+  notify: Restart BeeGFS tuning service
+
+
+- name: Copy beegfs-tuning.service to /etc/systemd/system/
+  copy:
+    src: beegfs-tuning.service
+    dest: /etc/systemd/system/
+  become: yes
+  notify:
+  - Restart BeeGFS tuning service
+
+- name: Remove content from rc.local (remove once done)
   blockinfile:
     dest: /etc/rc.d/rc.local
     mode: a+x
     marker: "# {mark} BeeGFS tuning parameters"
+    state: absent
     block: |
       # from https://www.beegfs.io/wiki/StorageServerTuning
       echo always > /sys/kernel/mm/transparent_hugepage/enabled
@@ -33,12 +51,10 @@
         echo 256 > /sys/block/${dev}/queue/max_sectors_kb
       done
   become: yes
-  notify: Restart rc-local
 
-- name: Enable rc-local
+- name: Disable rc-local (remove once done)
   service:
     name: rc-local
-    state: started
-    enabled: yes
+    enabled: no
   become: yes
 ...

@@ -10,15 +10,21 @@
   set_fact:
     mounted_devs: "{{ ansible_mounts | map(attribute='device') | list }}"
 
-- name: (for backward compatibility)
+- name: Ensures BeeGFS storage services are not running (remove once done)
   service:
     name: "beegfs-storage@{{ item.dev }}"
     state: stopped
     enabled: no
   with_items: "{{ beegfs_oss }}"
   become: yes
-  when: beegfs_force_format | bool
-  notify: Restart BeeGFS storage service
+
+- name: Ensures BeeGFS storage services are not running (remove once done)
+  service:
+    name: "beegfs-storage"
+    state: stopped
+    enabled: no
+  with_items: "{{ beegfs_oss }}"
+  become: yes
 
 - name: Ensures BeeGFS storage services are not running
   service:

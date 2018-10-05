@@ -96,13 +96,14 @@
   service:
     name: "{{ item.name }}"
     enabled: yes
-    state: started
+    state: "{{ item.state | default(omit) }}"
   become: yes
   when: item.enable | bool
   with_items:
-  - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
-  - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}" }
-  - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}" }
+  - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}", state: started }
+  - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}", state: started }
+  - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}", state: started }
+  - { name: beegfs-tuning, enable: "{{ beegfs_enable.oss }}" }
 
 - name: Start and enable BeeGFS storage services
   service:
