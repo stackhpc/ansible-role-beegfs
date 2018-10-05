@@ -20,15 +20,6 @@
   become: yes
   loop: "{{ beegfs_oss }}"
   when: beegfs_enable.oss | bool
-  notify: Ensure that BeeGFS storage service has really started
-
-- name: Ensure that BeeGFS storage service has really started
-  service:
-    name: "beegfs-storage@{{ item.port }}"
-    state: restarted
-  become: yes
-  loop: "{{ beegfs_oss }}"
-  when: beegfs_enable.oss | bool
 
 - name: Restart BeeGFS admon service
   service:
