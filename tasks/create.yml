@@ -79,10 +79,12 @@
 
 - include: oss.yml
   vars:
-    oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
-    oss_port: "{{ item.port }}"
-    oss_dev: "{{ item.dev | default(omit) }}"
+    oss_path: "{{ oss_item.path | default(beegfs_oss_path_prefix + oss_item.dev) }}"
+    oss_port: "{{ oss_item.port }}"
+    oss_dev: "{{ oss_item.dev | default(omit) }}"
   with_items: "{{ beegfs_oss }}"
+  loop_control:
+    loop_var: oss_item
   when: beegfs_enable.oss | bool
 
 - include: tuning.yml
@@ -90,10 +92,12 @@
 
 - include: client.yml
   vars:
-    client_mgmt_host: "{{ item.mgmt_host | default(beegfs_mgmt_host) }}"
-    client_path: "{{ item.path }}"
-    client_port: "{{ item.port }}"
+    client_mgmt_host: "{{ client_item.mgmt_host | default(beegfs_mgmt_host) }}"
+    client_path: "{{ client_item.path }}"
+    client_port: "{{ client_item.port }}"
   with_items: "{{ beegfs_client }}"
+  loop_control:
+    loop_var: client_item
   when: beegfs_enable.client | bool
 
 - name: Create connInterfacesFile
