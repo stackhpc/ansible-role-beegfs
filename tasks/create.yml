@@ -84,6 +84,11 @@
   when: beegfs_enable.oss | bool
 
 - include: client.yml
+  vars:
+    client_mgmt_host: "{{ item.mgmt_host | default(beegfs_mgmt_host) }}"
+    client_path: "{{ item.path }}"
+    client_port: "{{ item.port }}"
+  with_items: "{{ beegfs_client }}"
   when: beegfs_enable.client | bool
 
 - name: Create connInterfacesFile

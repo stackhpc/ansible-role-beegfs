@@ -46,8 +46,10 @@ beegfs_meta_dev: # /dev/sdb
 beegfs_meta_fstype: # "ext4"
 
 # Client mount configs
-beegfs_client:
-- path: "/mnt/beegfs"
-  port: 8004 # If there are multiple clients, use different path, port and mgmt_host
-  mgmt_host: # To override the default beegfs_mgmt_host in cases there are multiple clients
+beegfs_client: []
+# Each item in the beegfs_client list should look like this:
+# - path: "/mnt/beegfs" # If there are multiple clients, use different path for each client.
+#   port: 8004 # If there are multiple clients, use different port for each client.
+#   mgmt_host: # Use this to override the default beegfs_mgmt_host in cases there are multiple clients.
+
 ...
