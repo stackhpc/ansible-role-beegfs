@@ -37,6 +37,37 @@
   when: not modules_load_stat.stat.exists
   with_items: "{{ beegfs_kmod_preload }}"
 
+- name: Stop and delete server and client service
+  block:
+  - name: Ensures BeeGFS client service is not running if force_format is requested
+    service:
+      name: beegfs-client
+      state: stopped
+    become: yes
+    when:
+    - beegfs_enable.oss | bool
+    - beegfs_enable.client | bool
+  - name: Stop BeeGFS server services
+    service:
+      name: "{{ item.name }}"
+      state: stopped
+    become: yes
+    when: item.enable | bool
+    with_items:
+    - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
+    - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}" }
+    - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}" }
+  - name: Remove other beegfs folders
+    file:
+      path: "{{ item.name }}"
+      state: absent
+    become: yes
+    when: item.enable | bool
+    with_items:
+    - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" } 
+    - { name: "{{ beegfs_mgmt_path }}", enable: "{{ beegfs_enable.mgmt }}" }
+  when: beegfs_force_format | bool
+
 - include: mgmt.yml
   when: beegfs_enable.mgmt | bool
 
@@ -47,10 +78,27 @@
   when: beegfs_enable.meta | bool
 
 - include: oss.yml
+  vars:
+    oss_path: "{{ oss_item.path | default(beegfs_oss_path_prefix + oss_item.dev) }}"
+    oss_port: "{{ oss_item.port }}"
+    oss_dev: "{{ oss_item.dev | default(omit) }}"
+  with_items: "{{ beegfs_oss }}"
+  loop_control:
+    loop_var: oss_item
+  when: beegfs_enable.oss | bool
+
+- include: tuning.yml
   when: beegfs_enable.oss | bool
 
 - include: client.yml
-  when: beegfs_enable.client | bool and beegfs_path_client not in ansible_mounts
+  vars:
+    client_mgmt_host: "{{ client_item.mgmt_host | default(beegfs_mgmt_host) }}"
+    client_path: "{{ client_item.path }}"
+    client_port: "{{ client_item.port }}"
+  with_items: "{{ beegfs_client }}"
+  loop_control:
+    loop_var: client_item
+  when: beegfs_enable.client | bool
 
 - name: Create connInterfacesFile
   template:
@@ -62,14 +110,32 @@
   service:
     name: "{{ item.name }}"
     enabled: yes
+    state: "{{ item.state | default(omit) }}"
+  become: yes
+  when: item.enable | bool
+  with_items:
+  - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}", state: started }
+  - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}", state: started }
+  - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}", state: started }
+  - { name: beegfs-tuning, enable: "{{ beegfs_enable.oss }}" }
+
+- name: Start and enable BeeGFS storage services
+  service:
+    name: "beegfs-storage@{{ item.port }}"
+    enabled: yes
+    state: started
+  become: yes
+  when: beegfs_enable.oss | bool
+  with_items: "{{ beegfs_oss }}"
+
+- name: Start and enable BeeGFS client services
+  service:
+    name: "{{ item.name }}"
+    enabled: yes
     state: started
   become: yes
   when: item.enable | bool
   with_items:
-  - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
-  - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}" }
-  - { name: beegfs-storage, enable: "{{ beegfs_enable.oss }}" }
-  - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}" }
   - { name: beegfs-helperd, enable: "{{ beegfs_enable.client }}" }
   - { name: beegfs-client, enable: "{{ beegfs_enable.client }}" }
   retries: 3

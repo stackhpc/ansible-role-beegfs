@@ -1,13 +1,42 @@
 ---
 - name: Unmount client mount path
   mount:
-    path: "{{ item.beegfs_path_client }}"
+    path: "{{ item.path }}"
     state: unmounted
   become: yes 
   when: beegfs_enable.client | bool
-  with_items: "{{ beegfs_client_confs }}"
+  with_items: "{{ beegfs_client }}"
 
-- name: Disable and stop BeeGFS server services
+- name: Stop and disable BeeGFS client services
+  service:
+    name: "{{ item.name }}"
+    enabled: no
+    state: stopped
+  become: yes
+  when: item.enable | bool
+  with_items:
+  - { name: beegfs-helperd, enable: "{{ beegfs_enable.client }}" }
+  - { name: beegfs-client, enable: "{{ beegfs_enable.client }}" }
+
+- name: (Backward compatible) Stop and disable BeeGFS storage service
+  service:
+    name: "beegfs-storage@{{ item.dev }}"
+    enabled: no
+    state: stopped
+  become: yes
+  when: beegfs_enable.oss | bool
+  with_items: "{{ beegfs_oss }}"
+
+- name: Stop and disable BeeGFS storage services
+  service:
+    name: "beegfs-storage@{{ item.port }}"
+    enabled: no
+    state: stopped
+  become: yes
+  when: beegfs_enable.oss | bool
+  with_items: "{{ beegfs_oss }}"
+
+- name: Stop and disable BeeGFS server services
   service:
     name: "{{ item.name }}"
     enabled: no
@@ -17,37 +46,41 @@
   with_items:
   - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
   - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}" }
-  - { name: beegfs-storage, enable: "{{ beegfs_enable.oss }}" }
   - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}" }
-  - { name: beegfs-client, enable: "{{ beegfs_enable.client }}" }
-  - { name: beegfs-helperd, enable: "{{ beegfs_enable.client }}" }
+  - { name: beegfs-tuning, enable: "{{ beegfs_enable.oss }}" }
 
 - name: Clear storeStorageDirectory
   lineinfile:
-    path: /etc/beegfs/beegfs-storage.conf
+    path: "/etc/beegfs/{{ item.port }}.d/beegfs-storage.conf"
     regexp: "^storeStorageDirectory"
     line: "storeStorageDirectory ="
+  with_items: "{{ beegfs_oss }}"
   become: yes
   when: beegfs_enable.oss | bool
 
 - name: Unmount BeeGFS oss paths if mounted
+  vars:
+    oss_path: "{{ beegfs_oss_path_prefix + item.dev }}"
   mount:
-    path: "{{ item }}"
+    path: "{{ oss_path }}"
     state: unmounted
   become: yes
-  with_items:
-  - "{{ beegfs_path_oss }}"
+  with_items: "{{ beegfs_oss }}"
   when:
   - beegfs_enable.oss | bool
-  - beegfs_dev_oss is defined
+  - item.dev is defined
 
 - name: Remove all beegfs oss folders
+  vars:
+    oss_path: "{{ beegfs_oss_path_prefix + item.dev }}"
   file:
-    path: "{{ item }}"
+    path: "{{ oss_path }}"
     state: absent
   become: yes
-  when: beegfs_enable.oss | bool
-  with_items: "{{ beegfs_path_oss }}"
+  with_items: "{{ beegfs_oss }}"
+  when:
+  - beegfs_enable.oss | bool
+  - item.dev is defined
 
 - name: Remove other beegfs folders
   file:
@@ -56,6 +89,6 @@
   become: yes
   when: item.enable | bool
   with_items:
-  - { name: "{{ beegfs_path_meta }}", enable: "{{ beegfs_enable.meta }}" } 
-  - { name: "{{ beegfs_path_mgmt }}", enable: "{{ beegfs_enable.mgmt }}" }
+  - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" } 
+  - { name: "{{ beegfs_mgmt_path }}", enable: "{{ beegfs_enable.mgmt }}" }
 ...

@@ -15,17 +15,10 @@
 
 - name: Restart BeeGFS storage service
   service:
-    name: beegfs-storage
+    name: "beegfs-storage@{{ item.port }}"
     state: restarted
   become: yes
-  when: beegfs_enable.oss | bool
-  notify: Ensure that BeeGFS storage service has really started
-
-- name: Ensure that BeeGFS storage service has really started
-  service:
-    name: beegfs-storage
-    state: started
-  become: yes
+  with_items: "{{ beegfs_oss }}"
   when: beegfs_enable.oss | bool
 
 - name: Restart BeeGFS admon service
@@ -48,4 +41,11 @@
   delay: 3
   register: result
   until: result is success
+
+- name: Restart BeeGFS tuning service
+  systemd:
+    name: beegfs-tuning
+    daemon-reload: yes
+    state: restarted
+  become: yes
 ...

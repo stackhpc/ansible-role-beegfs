@@ -1,22 +1,5 @@
 ---
-beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs-rhel7.repo"
-
-# Define to enable support for BeeGFS data transport over RDMA (IB, OPA, RoCE)
-beegfs_rdma: yes
-
-beegfs_path_client: "/mnt/beegfs"
-beegfs_port_client: 8004
-
-beegfs_path_mgmt: "/data/beegfs/beegfs_mgmtd"
-beegfs_path_meta: "/data/beegfs/beegfs_meta"
-beegfs_path_oss: []
-
-beegfs_host_mgmt: ""
-
-#Define these to add dedicated block devices.  The OSS variable is a list of devices.
-#beegfs_dev_meta:
-#beegfs_dev_oss: []
-
+# Option to enable/disable services
 beegfs_enable:
   mgmt: no
   meta: no
@@ -24,22 +7,49 @@ beegfs_enable:
   admon: no
   client: no
 
+# Can be present or absent
+beegfs_state: present
+
 # Kernel modules to ensure are loaded prior to BeeGFS deploy/startup
 beegfs_kmod_preload: []
-
-# Force format of filesystem
-beegfs_force_format: no
-
-# File system type
-beegfs_fstype: "xfs"
 
 # Network interfaces in order of preference
 # (leaving empty means InfiniBand & RDMA enabled devices are preferred)
 beegfs_interfaces: []
 
-# Can be present or absent
-beegfs_state: present
+# BeeGFS repo
+beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs_rhel7.repo"
+
+# Define to enable support for BeeGFS data transport over RDMA (IB, OPA, RoCE)
+beegfs_rdma: yes
+
+# Default filesystem options
+beegfs_filesystem_opts: "-K -d su=128k,sw=8 -l version=2,su=128k -isize=512"
+beegfs_mount_opts: "noatime,nodiratime,logbufs=8,logbsize=256k,largeio,inode64,swalloc,allocsize=131072k,nobarrier"
+beegfs_force_format: no
+beegfs_fstype: "xfs"
+
+# Storage server options
+beegfs_oss_path_prefix: "/data/beegfs/beegfs_oss"
+beegfs_oss:
+- port: 8003
+  dev: "/dev/sdb"
+  path: # specifying dev overrides path
+
+# Management options
+beegfs_mgmt_path: "/data/beegfs/beegfs_mgmtd"
+beegfs_mgmt_host: # "{{ groups['cluster_beegfs_mgmt'] | first }}"
+
+# Metadata storage options
+beegfs_meta_path: "/data/beegfs/beegfs_meta"
+beegfs_meta_dev: # /dev/sdb
+beegfs_meta_fstype: # "ext4"
 
 # Client mount configs
-beegfs_client_confs: []
+beegfs_client: []
+# Each item in the beegfs_client list should look like this:
+# - path: "/mnt/beegfs" # If there are multiple clients, use different path for each client.
+#   port: 8004 # If there are multiple clients, use different port for each client.
+#   mgmt_host: # Use this to override the default beegfs_mgmt_host in cases there are multiple clients.
+
 ...
