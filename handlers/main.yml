@@ -18,7 +18,7 @@
     name: "beegfs-storage@{{ item.port }}"
     state: restarted
   become: yes
-  loop: "{{ beegfs_oss }}"
+  with_items: "{{ beegfs_oss }}"
   when: beegfs_enable.oss | bool
 
 - name: Restart BeeGFS admon service

@@ -78,6 +78,11 @@
   when: beegfs_enable.meta | bool
 
 - include: oss.yml
+  vars:
+    oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
+    oss_port: "{{ item.port }}"
+    oss_dev: "{{ item.dev | default(omit) }}"
+  with_items: "{{ beegfs_oss }}"
   when: beegfs_enable.oss | bool
 
 - include: tuning.yml

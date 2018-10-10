@@ -12,109 +12,88 @@
 
 - name: Ensures BeeGFS storage services are not running
   service:
-    name: "beegfs-storage@{{ item.port }}"
+    name: "beegfs-storage@{{ oss_port }}"
     state: stopped
-  with_items: "{{ beegfs_oss }}"
   become: yes
   when: beegfs_force_format | bool
   notify: Restart BeeGFS storage service
 
 - name: Create storage config dirs
   file:
-    path: "/etc/beegfs/{{ item.port }}.d/"
+    path: "/etc/beegfs/{{ oss_port }}.d/"
     state: directory
-  loop: "{{ beegfs_oss }}"
   become: yes
   notify: Restart BeeGFS storage service
 
 - name: Add template beegfs-storage conf
   copy:
     src: "/etc/beegfs/beegfs-storage.conf"
-    dest: "/etc/beegfs/{{ item.port }}.d/beegfs-storage.conf"
+    dest: "/etc/beegfs/{{ oss_port }}.d/beegfs-storage.conf"
     remote_src: yes
     force: no
-  loop: "{{ beegfs_oss }}"
   become: yes
   notify: Restart BeeGFS storage service
 
 - name: Prepare storage devices
   block:
   - name: Unmount storage device if beegfs_force_format is true
-    vars:
-      oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
     mount:
-      src: "{{ item.dev }}"
+      src: "{{ oss_dev }}"
       path: "{{ oss_path }}"
       state: unmounted
     when: 
-    - item.dev is defined
+    - oss_dev is defined
     - beegfs_force_format | bool
-    with_items: "{{ beegfs_oss }}"
     notify: Restart BeeGFS storage service
   - name: Attempt to format if the device is not mounted or if beegfs_force_format is true
-    vars:
-      oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
     filesystem:
-      dev: "{{ item.dev }}"
+      dev: "{{ oss_dev }}"
       fstype: "{{ beegfs_fstype }}"
       force: "{{ beegfs_force_format | bool }}"
       opts: "{{ beegfs_filesystem_opts }}"
     when:
-    - item.dev is defined
-    - (item.dev not in mounted_devs) or (beegfs_force_format | bool)
-    with_items: "{{ beegfs_oss }}"
+    - oss_dev is defined
+    - (oss_dev not in mounted_devs) or (beegfs_force_format | bool)
     notify: Restart BeeGFS storage service
   - name: Mount filesystem, fail if the fstype doesn't match
-    vars:
-      oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
     mount:
-      src: "{{ item.dev }}"
+      src: "{{ oss_dev }}"
       path: "{{ oss_path }}"
       fstype: "{{ beegfs_fstype }}"
       state: mounted
       opts: "{{ beegfs_mount_opts }}"
-    with_items: "{{ beegfs_oss }}"
-    when: item.dev is defined
+    when: oss_dev is defined
     notify: Restart BeeGFS storage service
   become: yes
 
 - name: Run storage service setup script
-  vars:
-    oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
   command: |
     /opt/beegfs/sbin/beegfs-setup-storage \
     -p {{ oss_path }} \
     -m {{ beegfs_mgmt_host }} \
-    -c /etc/beegfs/{{ item.port }}.d/beegfs-storage.conf \
-    -I {{ beegfs_mgmt_host }}-{{ item.port }} \
-    -S {{ beegfs_mgmt_host }}-{{ item.port }} \
+    -c /etc/beegfs/{{ oss_port }}.d/beegfs-storage.conf \
+    -I {{ beegfs_mgmt_host }}-{{ oss_port }} \
+    -S {{ beegfs_mgmt_host }}-{{ oss_port }} \
     -r \
     -f
   args:
     creates: "{{ oss_path }}/originalNodeID"
-  with_items: "{{ beegfs_oss }}"
   become: yes
   notify: Restart BeeGFS storage service
 
 - name: set TCP storage port
-  vars:
-    oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
   lineinfile:
-    path: "/etc/beegfs/{{ item.port }}.d/beegfs-storage.conf"
+    path: "/etc/beegfs/{{ oss_port }}.d/beegfs-storage.conf"
     regexp: '^connStoragePortTCP'
-    line: "connStoragePortTCP = {{ item.port }}"
-  with_items: "{{ beegfs_oss }}"
+    line: "connStoragePortTCP = {{ oss_port }}"
   become: yes
   notify: Restart BeeGFS storage service
 
 - name: set UDP storage port
-  vars:
-    oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
   lineinfile:
-    path: "/etc/beegfs/{{ item.port }}.d/beegfs-storage.conf"
+    path: "/etc/beegfs/{{ oss_port }}.d/beegfs-storage.conf"
     regexp: '^connStoragePortUDP'
-    line: "connStoragePortUDP = {{ item.port }}"
-  with_items: "{{ beegfs_oss }}"
+    line: "connStoragePortUDP = {{ oss_port }}"
   become: yes
   notify: Restart BeeGFS storage service
 
