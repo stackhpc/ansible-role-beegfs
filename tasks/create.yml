@@ -47,7 +47,7 @@
     when:
     - beegfs_enable.oss | bool
     - beegfs_enable.client | bool
-  - name: Stop and disable BeeGFS server services
+  - name: Stop BeeGFS server services
     service:
       name: "{{ item.name }}"
       state: stopped

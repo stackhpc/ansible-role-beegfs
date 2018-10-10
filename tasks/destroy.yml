@@ -51,7 +51,7 @@
 
 - name: Clear storeStorageDirectory
   lineinfile:
-    path: "/etc/beegfs/{{ item.dev }}.d/beegfs-storage.conf"
+    path: "/etc/beegfs/{{ item.port }}.d/beegfs-storage.conf"
     regexp: "^storeStorageDirectory"
     line: "storeStorageDirectory ="
   loop: "{{ beegfs_oss }}"
