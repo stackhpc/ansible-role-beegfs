@@ -52,11 +52,11 @@ And a corresponding playbook as this (`beegfs.yml`):
           oss: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
           client: "{{ inventory_hostname in groups['cluster_beegfs_client'] }}"
         beegfs_oss:
-        - dev: "sdb"
+        - dev: "/dev/sdb"
           port: 8003
-        - dev: "sdc"
+        - dev: "/dev/sdc"
           port: 8103
-        - dev: "sdd"
+        - dev: "/dev/sdd"
           port: 8203
         beegfs_mgmt_host: "{{ groups['cluster_beegfs_mgmt'] | first }}"
         beegfs_client:

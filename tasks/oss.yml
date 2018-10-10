@@ -42,9 +42,8 @@
   - name: Unmount storage device if beegfs_force_format is true
     vars:
       oss_path: "{{ item.path | default(beegfs_oss_path_prefix + '/' + item.dev) }}"
-      oss_dev: "{{ beegfs_oss_dev_prefix + '/' + item.dev }}"
     mount:
-      src: "{{ oss_dev }}"
+      src: "{{ item.dev }}"
       path: "{{ oss_path }}"
       state: unmounted
     when: 
@@ -55,23 +54,21 @@
   - name: Attempt to format if the device is not mounted or if beegfs_force_format is true
     vars:
       oss_path: "{{ item.path | default(beegfs_oss_path_prefix + '/' + item.dev) }}"
-      oss_dev: "{{ beegfs_oss_dev_prefix + '/' + item.dev }}"
     filesystem:
-      dev: "{{ oss_dev }}"
+      dev: "{{ item.dev }}"
       fstype: "{{ beegfs_fstype }}"
       force: "{{ beegfs_force_format | bool }}"
       opts: "{{ beegfs_filesystem_opts }}"
     when:
     - item.dev is defined
-    - (oss_dev not in mounted_devs) or (beegfs_force_format | bool)
+    - (item.dev not in mounted_devs) or (beegfs_force_format | bool)
     with_items: "{{ beegfs_oss }}"
     notify: Restart BeeGFS storage service
   - name: Mount filesystem, fail if the fstype doesn't match
     vars:
       oss_path: "{{ item.path | default(beegfs_oss_path_prefix + '/' + item.dev) }}"
-      oss_dev: "{{ beegfs_oss_dev_prefix + '/' + item.dev }}"
     mount:
-      src: "{{ oss_dev }}"
+      src: "{{ item.dev }}"
       path: "{{ oss_path }}"
       fstype: "{{ beegfs_fstype }}"
       state: mounted

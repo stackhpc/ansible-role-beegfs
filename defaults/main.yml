@@ -31,10 +31,9 @@ beegfs_fstype: "xfs"
 
 # Storage server options
 beegfs_oss_path_prefix: "/data/beegfs/beegfs_oss"
-beegfs_oss_dev_prefix: "/dev"
 beegfs_oss:
 - port: 8003
-  dev: "sdb"
+  dev: "/dev/sdb"
   path: # specifying dev overrides path
 
 # Management options
