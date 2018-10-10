@@ -41,7 +41,7 @@
   block:
   - name: Unmount storage device if beegfs_force_format is true
     vars:
-      oss_path: "{{ item.path | default(beegfs_oss_path_prefix + '/' + item.dev) }}"
+      oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
     mount:
       src: "{{ item.dev }}"
       path: "{{ oss_path }}"
@@ -53,7 +53,7 @@
     notify: Restart BeeGFS storage service
   - name: Attempt to format if the device is not mounted or if beegfs_force_format is true
     vars:
-      oss_path: "{{ item.path | default(beegfs_oss_path_prefix + '/' + item.dev) }}"
+      oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
     filesystem:
       dev: "{{ item.dev }}"
       fstype: "{{ beegfs_fstype }}"
@@ -66,7 +66,7 @@
     notify: Restart BeeGFS storage service
   - name: Mount filesystem, fail if the fstype doesn't match
     vars:
-      oss_path: "{{ item.path | default(beegfs_oss_path_prefix + '/' + item.dev) }}"
+      oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
     mount:
       src: "{{ item.dev }}"
       path: "{{ oss_path }}"
@@ -80,7 +80,7 @@
 
 - name: Run storage service setup script
   vars:
-    oss_path: "{{ item.path | default(beegfs_oss_path_prefix + '/' + item.dev) }}"
+    oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
   command: |
     /opt/beegfs/sbin/beegfs-setup-storage \
     -p {{ oss_path }} \
@@ -98,7 +98,7 @@
 
 - name: set TCP storage port
   vars:
-    oss_path: "{{ item.path | default(beegfs_oss_path_prefix + '/' + item.dev) }}"
+    oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
   lineinfile:
     path: "/etc/beegfs/{{ item.port }}.d/beegfs-storage.conf"
     regexp: '^connStoragePortTCP'
@@ -109,7 +109,7 @@
 
 - name: set UDP storage port
   vars:
-    oss_path: "{{ item.path | default(beegfs_oss_path_prefix + '/' + item.dev) }}"
+    oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
   lineinfile:
     path: "/etc/beegfs/{{ item.port }}.d/beegfs-storage.conf"
     regexp: '^connStoragePortUDP'

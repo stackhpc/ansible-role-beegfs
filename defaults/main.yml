@@ -18,7 +18,7 @@ beegfs_kmod_preload: []
 beegfs_interfaces: []
 
 # BeeGFS repo
-beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs-rhel7.repo"
+beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs_rhel7.repo"
 
 # Define to enable support for BeeGFS data transport over RDMA (IB, OPA, RoCE)
 beegfs_rdma: yes
