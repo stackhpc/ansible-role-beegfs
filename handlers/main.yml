@@ -43,8 +43,9 @@
   until: result is success
 
 - name: Restart BeeGFS tuning service
-  service:
+  systemd:
     name: beegfs-tuning
+    daemon-reload: yes
     state: restarted
   become: yes
 ...

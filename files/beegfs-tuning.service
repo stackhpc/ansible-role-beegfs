@@ -6,7 +6,8 @@ After=network-online.target
 
 [Service]
 ExecStart=/bin/bash /opt/beegfs/beegfs-tuning.sh
-Type=simple
+Type=oneshot
+RemainAfterExit=1
 
 [Install]
 WantedBy=multi-user.target
