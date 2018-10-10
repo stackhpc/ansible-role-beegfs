@@ -64,8 +64,8 @@
     become: yes
     when: item.enable | bool
     with_items:
-    - { name: "{{ beegfs_meta.path }}", enable: "{{ beegfs_enable.meta }}" } 
-    - { name: "{{ beegfs_mgmt.path }}", enable: "{{ beegfs_enable.mgmt }}" }
+    - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" } 
+    - { name: "{{ beegfs_mgmt_path }}", enable: "{{ beegfs_enable.mgmt }}" }
   when: beegfs_force_format | bool
 
 - include: mgmt.yml

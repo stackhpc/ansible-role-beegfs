@@ -8,15 +8,15 @@
 
 - name: Create directory for BeeGFS management service data
   file:
-    path: "{{ beegfs_mgmt.path }}"
+    path: "{{ beegfs_mgmt_path }}"
     state: directory
   become: yes
   notify: Restart BeeGFS mgmt service
 
 - name: Run management service setup script
-  command: "/opt/beegfs/sbin/beegfs-setup-mgmtd -p {{ beegfs_mgmt.path }} -f"
+  command: "/opt/beegfs/sbin/beegfs-setup-mgmtd -p {{ beegfs_mgmt_path }} -f"
   args:
-    creates: "{{ beegfs_mgmt.path }}/originalNodeID"
+    creates: "{{ beegfs_mgmt_path }}/originalNodeID"
   become: yes
   notify: Restart BeeGFS mgmt service
 

@@ -58,17 +58,15 @@ And a corresponding playbook as this (`beegfs.yml`):
           port: 8103
         - dev: "sdd"
           port: 8203
-        beegfs_fstype: "xfs"
-        beegfs_force_format: no
-        beegfs_interfaces: ["ib0"]
-        beegfs_meta:
-          # dev: "/dev/sdb"
-          path: "/data/beegfs/beegfs_meta"
-        beegfs_rdma: yes
-        beegfs_state: present
+        beegfs_mgmt_host: "{{ groups['cluster_beegfs_mgmt'] | first }}"
         beegfs_client:
           path: "/mnt/beegfs"
           port: 8004
+        beegfs_fstype: "xfs"
+        beegfs_force_format: no
+        beegfs_interfaces: ["ib0"]
+        beegfs_rdma: yes
+        beegfs_state: present
     ...
 
 To create a cluster:

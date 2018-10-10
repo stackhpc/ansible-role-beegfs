@@ -35,22 +35,20 @@ beegfs_oss_dev_prefix: "/dev"
 beegfs_oss:
 - port: 8003
   dev: "sdb"
-  # path: # specifying dev overrides path
+  path: # specifying dev overrides path
 
 # Management options
-beegfs_mgmt:
-  path: "/data/beegfs/beegfs_mgmtd"
-  host: "{{ groups['cluster_beegfs_mgmt'] | first }}"
+beegfs_mgmt_path: "/data/beegfs/beegfs_mgmtd"
+beegfs_mgmt_host: # "{{ groups['cluster_beegfs_mgmt'] | first }}"
 
 # Metadata storage options
-beegfs_meta:
-  path: "/data/beegfs/beegfs_meta"
-  dev: # /dev/sdb
-  fstype: # "ext4"
+beegfs_meta_path: "/data/beegfs/beegfs_meta"
+beegfs_meta_dev: # /dev/sdb
+beegfs_meta_fstype: # "ext4"
 
 # Client mount configs
 beegfs_client:
 - path: "/mnt/beegfs"
-  port: 8004
-  mgmt_host: "{{ beegfs_mgmt.host }}"
+  port: 8004 # If there are multiple clients, use different path, port and mgmt_host
+  mgmt_host: # To override the default beegfs_mgmt_host in cases there are multiple clients
 ...

@@ -87,10 +87,10 @@
   command: |
     /opt/beegfs/sbin/beegfs-setup-storage \
     -p {{ oss_path }} \
-    -m {{ beegfs_mgmt.host }} \
+    -m {{ beegfs_mgmt_host }} \
     -c /etc/beegfs/{{ item.port }}.d/beegfs-storage.conf \
-    -I {{ beegfs_mgmt.host }}-{{ item.port }} \
-    -S {{ beegfs_mgmt.host }}-{{ item.port }} \
+    -I {{ beegfs_mgmt_host }}-{{ item.port }} \
+    -S {{ beegfs_mgmt_host }}-{{ item.port }} \
     -r \
     -f
   args:
