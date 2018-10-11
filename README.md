@@ -60,7 +60,7 @@ And a corresponding playbook as this (`beegfs.yml`):
           port: 8203
         beegfs_mgmt_host: "{{ groups['cluster_beegfs_mgmt'] | first }}"
         beegfs_client:
-          path: "/mnt/beegfs"
+        - path: "/mnt/beegfs"
           port: 8004
         beegfs_fstype: "xfs"
         beegfs_force_format: no
