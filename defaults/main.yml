@@ -35,6 +35,7 @@ beegfs_oss:
 - port: 8003
   dev: "/dev/sdb"
   path: # specifying dev overrides path
+beegfs_oss_tunable: "{{ beegfs_oss | map(attribute='dev') | map('relpath', '/dev/') | join(' ') }}"
 
 # Management options
 beegfs_mgmt_path: "/data/beegfs/beegfs_mgmtd"

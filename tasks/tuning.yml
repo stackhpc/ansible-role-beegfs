@@ -16,20 +16,20 @@
   - {key: 'vm.zone_reclaim_mode', value: '1'}
   become: yes
 
-- name: Copy beegfs-oss-tuning.sh to /opt/beegfs/
-  template:
-    src: beegfs-oss-tuning.sh.j2
-    dest: /opt/beegfs/beegfs-oss-tuning.sh
-    mode: a+x
+- name: Tune beegfs_oss_tunable devices
+  block:
+  - name: Copy beegfs-oss-tuning.sh to /opt/beegfs/
+    template:
+      src: beegfs-oss-tuning.sh.j2
+      dest: /opt/beegfs/beegfs-oss-tuning.sh
+      mode: a+x
+    notify: Restart BeeGFS tuning service
+  - name: Copy beegfs-oss-tuning.service to /etc/systemd/system/
+    copy:
+      src: beegfs-oss-tuning.service
+      dest: /etc/systemd/system/
+    notify:
+    - Restart BeeGFS tuning service
+  when: beegfs_oss_tunable | default([]) | length > 0
   become: yes
-  notify: Restart BeeGFS tuning service
-
-
-- name: Copy beegfs-oss-tuning.service to /etc/systemd/system/
-  copy:
-    src: beegfs-oss-tuning.service
-    dest: /etc/systemd/system/
-  become: yes
-  notify:
-  - Restart BeeGFS tuning service
 ...
