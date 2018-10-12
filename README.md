@@ -5,7 +5,7 @@ summary, BeegFS is a parallel file system that spreads user data across
 multiple servers. It is designed to be scalable both in terms of
 performance and capacity. Learn more about BeeFS [here](www.beegfs.io).
 
-The role was last tested using Ansible version 2.5.2.
+The role was last tested using Ansible version 2.5.0.
 
 ## Example
 
@@ -50,6 +50,7 @@ And a corresponding playbook as this (`beegfs.yml`):
           admon: no
           meta: "{{ inventory_hostname in groups['cluster_beegfs_mds'] }}"
           oss: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
+          tuning: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
           client: "{{ inventory_hostname in groups['cluster_beegfs_client'] }}"
         beegfs_oss:
         - dev: "/dev/sdb"
@@ -88,15 +89,48 @@ under `beegfs_enable` to `yes` or `no` where:
 - `client`: Clients of the BeeGFS storage cluster
 - `admon`: NOT IMPLEMENTED
 
-Additionally, this role is dependent upon each node's hostname
-resolving to the IP address used to reach the management host, as
-configured via `beegfs_host_mgmt`. In this case, `bgsf1` and
-`bgfs2` must resolve to `172.16.1.1` and `172.16.1.2`
+This role is dependent upon each node's hostname resolving to the IP address
+used to reach the management host, as configured via `beegfs_host_mgmt`. In
+this case, `bgsf1` and `bgfs2` must resolve to `172.16.1.1` and `172.16.1.2`
 respectively. This may be done via DNS or `/etc/hosts`.
 
-It is also important to note that when provisioning the cluster, if the
-block devices specified already have a file system specified, or the
-disk is not empty, it is important to force format the disk. This can be
-set my setting `beegfs_force_format` to `yes`. THIS WILL DELETE THE
-CONTENT OF THE DISK(S). Make sure you have made backups if you care
-about their content.
+It is important to note that when provisioning the cluster, if the block
+devices specified already have a file system specified, or the disk is not
+empty, it is important to force format the disk. This can be set my setting
+`beegfs_force_format` to `yes`. THIS WILL DELETE THE CONTENT OF THE DISK(S).
+Make sure you have made backups if you care about their content.
+
+Partitions are supported but they must already have been created through
+another means. Additionally, you will also need override the variable
+`beegfs_oss_tunable` with a list of parent block devices since partitions do
+not live under `/sys/block/`. For example, to create partitions using an
+Ansible module called `parted` (works on Ansible version 2.5+), you can run the
+following playbook:
+
+    ---
+    - hosts:
+      - cluster_beegfs_oss
+      vars:
+        partitions:
+        - dev: /dev/sdb
+          start: 0%
+          end: 50%
+          number: 1
+        - dev: /dev/sdb
+          start: 50%
+          end: 100%
+          number: 2
+      tasks:
+      - name: Create partitions
+        parted:
+          label: gpt
+          state: present
+          part_type: primary
+          device: "{{ item.dev }}"
+          part_start: "{{ item.start }}"
+          part_end: "{{ item.end }}"
+          number: "{{ item.number }}"
+        with_items: "{{ partitions }}"
+        become: yes
+    ...
+
