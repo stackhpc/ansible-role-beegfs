@@ -90,8 +90,8 @@ under `beegfs_enable` to `yes` or `no` where:
 
 Additionally, this role is dependent upon each node's hostname
 resolving to the IP address used to reach the management host, as
-configured via `beegfs_host_mgmt`. In this case, `bgsf1.novalocal` and
-`bgfs2.novalocal` must resolve to `172.16.1.1` and `172.16.1.2`
+configured via `beegfs_host_mgmt`. In this case, `bgsf1` and
+`bgfs2` must resolve to `172.16.1.1` and `172.16.1.2`
 respectively. This may be done via DNS or `/etc/hosts`.
 
 It is also important to note that when provisioning the cluster, if the
