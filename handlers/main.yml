@@ -44,7 +44,7 @@
 
 - name: Restart BeeGFS tuning service
   systemd:
-    name: beegfs-tuning
+    name: beegfs-oss-tuning
     daemon-reload: yes
     state: restarted
   become: yes
