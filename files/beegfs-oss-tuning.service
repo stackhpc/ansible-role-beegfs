@@ -5,7 +5,7 @@ Requires=network-online.target
 After=network-online.target
 
 [Service]
-ExecStart=/bin/bash /opt/beegfs/beegfs-tuning.sh
+ExecStart=/bin/bash /opt/beegfs/beegfs-oss-tuning.sh
 Type=oneshot
 RemainAfterExit=1
 
