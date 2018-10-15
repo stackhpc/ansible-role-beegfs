@@ -88,7 +88,7 @@
   when: beegfs_enable.oss | bool
 
 - include: tuning.yml
-  when: beegfs_enable.oss | bool
+  when: beegfs_enable.tuning | bool
 
 - include: client.yml
   vars:
@@ -117,7 +117,7 @@
   - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}", state: started }
   - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}", state: started }
   - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}", state: started }
-  - { name: beegfs-oss-tuning, enable: "{{ beegfs_enable.oss }}" }
+  - { name: beegfs-oss-tuning, enable: "{{ beegfs_enable.tuning }}" }
 
 - name: Start and enable BeeGFS storage services
   service:

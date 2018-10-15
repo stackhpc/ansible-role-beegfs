@@ -47,7 +47,7 @@
   - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
   - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}" }
   - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}" }
-  - { name: beegfs-tuning, enable: "{{ beegfs_enable.oss }}" }
+  - { name: beegfs-oss-tuning, enable: "{{ beegfs_enable.tuning }}" }
 
 - name: Clear storeStorageDirectory
   lineinfile:
