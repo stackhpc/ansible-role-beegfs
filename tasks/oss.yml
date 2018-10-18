@@ -72,8 +72,8 @@
     -p {{ oss_path }} \
     -m {{ beegfs_mgmt_host }} \
     -c /etc/beegfs/{{ oss_port }}.d/beegfs-storage.conf \
-    -I {{ beegfs_mgmt_host }}-{{ oss_port }} \
-    -S {{ beegfs_mgmt_host }}-{{ oss_port }} \
+    -I {{ ansible_facts['hostname'] }}-{{ oss_port }} \
+    -S {{ ansible_facts['hostname'] }}-{{ oss_port }} \
     -r \
     -f
   args:
