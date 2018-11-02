@@ -3,7 +3,7 @@
   mount:
     path: "{{ item.path }}"
     state: unmounted
-  become: yes 
+  become: yes
   when: beegfs_enable.client | bool
   with_items: "{{ beegfs_client }}"
 
@@ -89,6 +89,6 @@
   become: yes
   when: item.enable | bool
   with_items:
-  - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" } 
+  - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" }
   - { name: "{{ beegfs_mgmt_path }}", enable: "{{ beegfs_enable.mgmt }}" }
 ...

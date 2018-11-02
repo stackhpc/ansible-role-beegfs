@@ -14,7 +14,7 @@ galaxy_info:
         - 7
     - name: Ubuntu
       versions:
-        - 18.04 
+        - 18.04
   galaxy_tags:
     - cloud
     - storage

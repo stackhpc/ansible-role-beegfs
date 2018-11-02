@@ -41,7 +41,7 @@
       src: "{{ oss_dev }}"
       path: "{{ oss_path }}"
       state: unmounted
-    when: 
+    when:
     - oss_dev is defined
     - beegfs_force_format | bool
     notify: Restart BeeGFS storage service

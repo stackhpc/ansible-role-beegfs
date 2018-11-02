@@ -18,7 +18,7 @@
 - name: Define client kernel build for IB
   block:
   - name: Define client kernel build for IB
-    lineinfile: 
+    lineinfile:
       path: "/etc/beegfs/beegfs-client-autobuild.conf"
       regexp: "^buildArgs="
       line: "buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1"
@@ -57,7 +57,7 @@
     src: beegfs-mounts.conf.j2
     dest: /etc/beegfs/beegfs-mounts.conf
     mode: 0644
-  become: yes 
+  become: yes
   notify: Restart BeeGFS client service
 
 - name: Make of copy of BeeGFS client config file if it doesn't exist
