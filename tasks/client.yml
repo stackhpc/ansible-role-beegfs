@@ -65,7 +65,7 @@
     remote_src: true
     src: /etc/beegfs/beegfs-client.conf
     dest: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
-    force: no
+    force: false
   become: true
   notify: Restart BeeGFS client service
 
@@ -95,7 +95,7 @@
     remote_src: true
     dest: /etc/beegfs/beegfs-client.conf
     src: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
-    force: yes
+    force: true
   when: client_mgmt_host == inventory_hostname
   become: true
 ...
