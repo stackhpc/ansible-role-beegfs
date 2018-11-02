@@ -17,6 +17,14 @@
       when: ansible_os_family == "RedHat"
   become: yes
 
+- name: Refresh apt repos
+  apt:
+    name: base-files
+    state: present
+    update_cache: yes
+  become: yes 
+  when: ansible_os_family == "Debian"
+
 # Task flow inspired by MichaelRigart.interfaces role - thanks markgoddard
 # Some systems do not support /etc/modules-load.d, in which case we fall back
 # to /etc/modules.
@@ -51,12 +59,15 @@
 
 - name: Stop and delete server and client service
   block:
+  - name: Probe installed services
+    service_facts:
   - name: Ensures BeeGFS client service is not running if force_format is requested
     service:
       name: beegfs-client
       state: stopped
     become: yes
     when:
+    - "'beegfs-client.service' in ansible_facts.services"
     - beegfs_enable.oss | bool
     - beegfs_enable.client | bool
   - name: Stop BeeGFS server services
@@ -64,7 +75,9 @@
       name: "{{ item.name }}"
       state: stopped
     become: yes
-    when: item.enable | bool
+    when:
+    #- item.name in ansible_facts.services
+    - item.enable | bool
     with_items:
     - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
     - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}" }
