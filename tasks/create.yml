@@ -11,10 +11,12 @@
         state: present
         url: "{{ beegfs_repo_key }}"
       when: ansible_os_family == "Debian"
+      tags: skip_ansible_lint # avoid ansible line warning "All tasks should be named"
     - rpm_key:
         state: present
         key: "{{ beegfs_repo_key }}"
       when: ansible_os_family == "RedHat"
+      tags: skip_ansible_lint # avoid ansible line warning "All tasks should be named"
   become: yes
 
 # Task flow inspired by MichaelRigart.interfaces role - thanks markgoddard
