@@ -6,6 +6,7 @@ beegfs_enable:
   oss: no
   admon: no
   client: no
+  tuning: no
 
 # Can be present or absent
 beegfs_state: present
@@ -17,8 +18,36 @@ beegfs_kmod_preload: []
 # (leaving empty means InfiniBand & RDMA enabled devices are preferred)
 beegfs_interfaces: []
 
+# Distribution-specific parameters
+beegfs_distro_vars:
+  RedHat: 
+    beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs_rhel7.repo"
+    beegfs_repo_key: "https://www.beegfs.io/release/latest-stable/gpg/RPM-GPG-KEY-beegfs"
+    beegfs_repo_file: "/etc/yum.repos.d/beegfs-rhel7.repo"
+    kernel_dev_pkg: "kernel-devel"
+    rdma_dev_pkgs:
+      - "librdmacm"
+      - "libibmad"
+      - "libibumad"
+      - "rdma-core"
+      - "libibverbs"
+      - "libibverbs-utils"
+
+  Debian:
+    beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs_deb9.list"
+    beegfs_repo_key: "https://www.beegfs.io/release/latest-stable/gpg/DEB-GPG-KEY-beegfs"
+    beegfs_repo_file: "/etc/apt/sources.list.d/beegfs_deb9.list"
+    kernel_dev_pkg: "linux-headers"
+    rdma_dev_pkgs:
+      - "librdmacm-dev"
+      - "libibmad-dev"
+      - "libibumad-dev"
+      - "libibverbs-dev"
+
 # BeeGFS repo
-beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs_rhel7.repo"
+beegfs_repo_url: "{{ beegfs_distro_vars[ansible_os_family]['beegfs_repo_url'] }}"
+beegfs_repo_key: "{{ beegfs_distro_vars[ansible_os_family]['beegfs_repo_key'] }}"
+beegfs_repo_file: "{{ beegfs_distro_vars[ansible_os_family]['beegfs_repo_file'] }}"
 
 # Define to enable support for BeeGFS data transport over RDMA (IB, OPA, RoCE)
 beegfs_rdma: yes

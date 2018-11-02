@@ -2,7 +2,19 @@
 - name: Ensure the BeeGFS package repo is defined
   get_url:
     url: "{{ beegfs_repo_url }}"
-    dest: /etc/yum.repos.d/beegfs-rhel7.repo
+    dest: "{{ beegfs_repo_file }}"
+  become: yes
+
+- name: Load package repo key
+  block:
+    - apt_key:
+        state: present
+        url: "{{ beegfs_repo_key }}"
+      when: ansible_os_family == "Debian"
+    - rpm_key:
+        state: present
+        key: "{{ beegfs_repo_key }}"
+      when: ansible_os_family == "RedHat"
   become: yes
 
 # Task flow inspired by MichaelRigart.interfaces role - thanks markgoddard
@@ -68,14 +80,17 @@
     - { name: "{{ beegfs_mgmt_path }}", enable: "{{ beegfs_enable.mgmt }}" }
   when: beegfs_force_format | bool
 
+- include: rdma.yml
+  when: beegfs_enable.rdma | default(no) | bool
+
 - include: mgmt.yml
-  when: beegfs_enable.mgmt | bool
+  when: beegfs_enable.mgmt | default(no) | bool
 
 - include: admon.yml
-  when: beegfs_enable.admon | bool
+  when: beegfs_enable.admon | default(no) | bool
 
 - include: meta.yml
-  when: beegfs_enable.meta | bool
+  when: beegfs_enable.meta | default(no) | bool
 
 - include: oss.yml
   vars:
@@ -85,10 +100,10 @@
   with_items: "{{ beegfs_oss }}"
   loop_control:
     loop_var: oss_item
-  when: beegfs_enable.oss | bool
+  when: beegfs_enable.oss | default(no) | bool
 
 - include: tuning.yml
-  when: beegfs_enable.tuning | bool
+  when: beegfs_enable.tuning | default(no) | bool
 
 - include: client.yml
   vars:
@@ -98,7 +113,7 @@
   with_items: "{{ beegfs_client }}"
   loop_control:
     loop_var: client_item
-  when: beegfs_enable.client | bool
+  when: beegfs_enable.client | default(no) | bool
 
 - name: Create connInterfacesFile
   template:

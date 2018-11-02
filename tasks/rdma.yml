@@ -1,13 +1,7 @@
 ---
 - name: Ensure RDMA packages are installed
   package:
-    name:
-    - "librdmacm"
-    - "libibmad"
-    - "libibumad"
-    - "rdma-core"
-    - "libibverbs"
-    - "libibverbs-utils"
+    name: "{{ beegfs_distro_vars[ansible_os_family]['rdma_dev_pkgs'] }}"
     state: present
   become: yes
 
