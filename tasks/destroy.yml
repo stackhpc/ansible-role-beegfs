@@ -10,7 +10,7 @@
 - name: Stop and disable BeeGFS client services
   service:
     name: "{{ item.name }}"
-    enabled: no
+    enabled: false
     state: stopped
   become: true
   when: item.enable | bool
@@ -21,7 +21,7 @@
 - name: (Backward compatible) Stop and disable BeeGFS storage service
   service:
     name: "beegfs-storage@{{ item.dev }}"
-    enabled: no
+    enabled: false
     state: stopped
   become: true
   when: beegfs_enable.oss | bool
@@ -30,7 +30,7 @@
 - name: Stop and disable BeeGFS storage services
   service:
     name: "beegfs-storage@{{ item.port }}"
-    enabled: no
+    enabled: false
     state: stopped
   become: true
   when: beegfs_enable.oss | bool
@@ -39,7 +39,7 @@
 - name: Stop and disable BeeGFS server services
   service:
     name: "{{ item.name }}"
-    enabled: no
+    enabled: false
     state: stopped
   become: true
   when: item.enable | bool

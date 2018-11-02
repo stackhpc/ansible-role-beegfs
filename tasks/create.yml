@@ -126,7 +126,7 @@
 - name: Start and enable BeeGFS server services
   service:
     name: "{{ item.name }}"
-    enabled: yes
+    enabled: true
     state: "{{ item.state | default(omit) }}"
   become: true
   when: item.enable | bool
@@ -139,7 +139,7 @@
 - name: Start and enable BeeGFS storage services
   service:
     name: "beegfs-storage@{{ item.port }}"
-    enabled: yes
+    enabled: true
     state: started
   become: true
   when: beegfs_enable.oss | bool
@@ -148,7 +148,7 @@
 - name: Start and enable BeeGFS client services
   service:
     name: "{{ item.name }}"
-    enabled: yes
+    enabled: true
     state: started
   become: true
   when: item.enable | bool
