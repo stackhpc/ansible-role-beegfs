@@ -105,6 +105,8 @@
 - include: tuning.yml
   when: beegfs_enable.tuning | default(no) | bool
 
+- meta: flush_handlers
+
 - include: client.yml
   vars:
     client_mgmt_host: "{{ client_item.mgmt_host | default(beegfs_mgmt_host) }}"
