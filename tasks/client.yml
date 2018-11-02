@@ -3,11 +3,11 @@
   package:
     name: "{{ item }}"
     state: present
-  become: yes
   with_items:
   - beegfs-client
   - beegfs-helperd
   - beegfs-utils
+  become: yes
   notify: Restart BeeGFS client service
 
 - name: Detect the version of the running kernel
@@ -25,7 +25,7 @@
     notify: Restart BeeGFS client service
   - name: Ensure kernel development headers are present
     package:
-      name: "kernel-devel-{{ kernel_version.stdout }}"
+      name: "{{ beegfs_distro_vars[ansible_os_family]['kernel_dev_pkg'] }}-{{ kernel_version.stdout }}"
       state: present
     notify: Restart BeeGFS client service
   become: yes
