@@ -62,7 +62,7 @@
 
 - name: Make of copy of BeeGFS client config file if it doesn't exist
   copy:
-    remote_src: yes
+    remote_src: true
     src: /etc/beegfs/beegfs-client.conf
     dest: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
     force: no
@@ -92,7 +92,7 @@
 
 - name: Copy default beegfs-client config file to enable beegfs_ctl in the management host
   copy:
-    remote_src: yes
+    remote_src: true
     dest: /etc/beegfs/beegfs-client.conf
     src: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
     force: yes

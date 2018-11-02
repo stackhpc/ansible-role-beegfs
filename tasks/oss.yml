@@ -29,7 +29,7 @@
   copy:
     src: "/etc/beegfs/beegfs-storage.conf"
     dest: "/etc/beegfs/{{ oss_port }}.d/beegfs-storage.conf"
-    remote_src: yes
+    remote_src: true
     force: no
   become: true
   notify: Restart BeeGFS storage service
