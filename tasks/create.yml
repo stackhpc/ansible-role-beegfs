@@ -38,7 +38,7 @@
   lineinfile:
     dest: /etc/modules-load.d/beegfs.conf
     line: "{{ item }}"
-    create: yes
+    create: true
   become: true
   when: modules_load_stat.stat.exists
   with_items: "{{ beegfs_kmod_preload }}"

@@ -6,8 +6,8 @@
     name: "{{ item.key }}"
     value: "{{ item.value }}"
     state: present
-    reload: yes
-    sysctl_set: yes
+    reload: true
+    sysctl_set: true
   with_items:
   - {key: 'vm.dirty_background_ratio', value: '5'}
   - {key: 'vm.dirty_ratio', value: '20'}
