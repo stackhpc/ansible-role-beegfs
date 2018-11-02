@@ -63,17 +63,17 @@ beegfs_oss_path_prefix: "/data/beegfs/beegfs_oss"
 beegfs_oss:
   - port: 8003
     dev: "/dev/sdb"
-    path: # specifying dev overrides path
+    path:  # specifying dev overrides path
 beegfs_oss_tunable: "{{ beegfs_oss | map(attribute='dev') | map('relpath', '/dev/' ) | list }}"
 
 # Management options
 beegfs_mgmt_path: "/data/beegfs/beegfs_mgmtd"
-beegfs_mgmt_host: # "{{ groups['cluster_beegfs_mgmt'] | first }}"
+beegfs_mgmt_host:  # "{{ groups['cluster_beegfs_mgmt'] | first }}"
 
 # Metadata storage options
 beegfs_meta_path: "/data/beegfs/beegfs_meta"
-beegfs_meta_dev: # /dev/sdb
-beegfs_meta_fstype: # "ext4"
+beegfs_meta_dev:  # /dev/sdb
+beegfs_meta_fstype:  # "ext4"
 
 # Client mount configs
 beegfs_client: []
