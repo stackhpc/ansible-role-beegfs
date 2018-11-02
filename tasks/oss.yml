@@ -36,34 +36,34 @@
 
 - name: Prepare storage devices
   block:
-  - name: Unmount storage device if beegfs_force_format is true
-    mount:
-      src: "{{ oss_dev }}"
-      path: "{{ oss_path }}"
-      state: unmounted
-    when:
-    - oss_dev is defined
-    - beegfs_force_format | bool
-    notify: Restart BeeGFS storage service
-  - name: Attempt to format if the device is not mounted or if beegfs_force_format is true
-    filesystem:
-      dev: "{{ oss_dev }}"
-      fstype: "{{ beegfs_fstype }}"
-      force: "{{ beegfs_force_format | bool }}"
-      opts: "{{ beegfs_filesystem_opts }}"
-    when:
-    - oss_dev is defined
-    - (oss_dev not in mounted_devs) or (beegfs_force_format | bool)
-    notify: Restart BeeGFS storage service
-  - name: Mount filesystem, fail if the fstype doesn't match
-    mount:
-      src: "{{ oss_dev }}"
-      path: "{{ oss_path }}"
-      fstype: "{{ beegfs_fstype }}"
-      state: mounted
-      opts: "{{ beegfs_mount_opts }}"
-    when: oss_dev is defined
-    notify: Restart BeeGFS storage service
+    - name: Unmount storage device if beegfs_force_format is true
+      mount:
+        src: "{{ oss_dev }}"
+        path: "{{ oss_path }}"
+        state: unmounted
+      when:
+        - oss_dev is defined
+        - beegfs_force_format | bool
+      notify: Restart BeeGFS storage service
+    - name: Attempt to format if the device is not mounted or if beegfs_force_format is true
+      filesystem:
+        dev: "{{ oss_dev }}"
+        fstype: "{{ beegfs_fstype }}"
+        force: "{{ beegfs_force_format | bool }}"
+        opts: "{{ beegfs_filesystem_opts }}"
+      when:
+        - oss_dev is defined
+        - (oss_dev not in mounted_devs) or (beegfs_force_format | bool)
+      notify: Restart BeeGFS storage service
+    - name: Mount filesystem, fail if the fstype doesn't match
+      mount:
+        src: "{{ oss_dev }}"
+        path: "{{ oss_path }}"
+        fstype: "{{ beegfs_fstype }}"
+        state: mounted
+        opts: "{{ beegfs_mount_opts }}"
+      when: oss_dev is defined
+      notify: Restart BeeGFS storage service
   become: true
 
 - name: Run storage service setup script

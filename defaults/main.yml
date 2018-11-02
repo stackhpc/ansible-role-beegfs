@@ -61,9 +61,9 @@ beegfs_fstype: "xfs"
 # Storage server options
 beegfs_oss_path_prefix: "/data/beegfs/beegfs_oss"
 beegfs_oss:
-- port: 8003
-  dev: "/dev/sdb"
-  path: # specifying dev overrides path
+  - port: 8003
+    dev: "/dev/sdb"
+    path: # specifying dev overrides path
 beegfs_oss_tunable: "{{ beegfs_oss | map(attribute='dev') | map('relpath', '/dev/' ) | list }}"
 
 # Management options

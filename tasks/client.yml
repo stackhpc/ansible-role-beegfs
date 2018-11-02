@@ -4,9 +4,9 @@
     name: "{{ item }}"
     state: present
   with_items:
-  - beegfs-client
-  - beegfs-helperd
-  - beegfs-utils
+    - beegfs-client
+    - beegfs-helperd
+    - beegfs-utils
   become: true
   notify: Restart BeeGFS client service
 
@@ -17,17 +17,17 @@
 
 - name: Define client kernel build for IB
   block:
-  - name: Define client kernel build for IB
-    lineinfile:
-      path: "/etc/beegfs/beegfs-client-autobuild.conf"
-      regexp: "^buildArgs="
-      line: "buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1"
-    notify: Restart BeeGFS client service
-  - name: Ensure kernel development headers are present
-    package:
-      name: "{{ beegfs_distro_vars[ansible_os_family]['kernel_dev_pkg'] }}-{{ kernel_version.stdout }}"
-      state: present
-    notify: Restart BeeGFS client service
+    - name: Define client kernel build for IB
+      lineinfile:
+        path: "/etc/beegfs/beegfs-client-autobuild.conf"
+        regexp: "^buildArgs="
+        line: "buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1"
+      notify: Restart BeeGFS client service
+    - name: Ensure kernel development headers are present
+      package:
+        name: "{{ beegfs_distro_vars[ansible_os_family]['kernel_dev_pkg'] }}-{{ kernel_version.stdout }}"
+        state: present
+      notify: Restart BeeGFS client service
   become: true
   when: beegfs_rdma | bool
 

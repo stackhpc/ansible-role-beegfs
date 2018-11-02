@@ -11,7 +11,7 @@
     state: present
   become: true
   with_items:
-  - "ib_umad"
-  - "ib_uverbs"
-  - "rdma_ucm"
+    - "ib_umad"
+    - "ib_uverbs"
+    - "rdma_ucm"
 ...

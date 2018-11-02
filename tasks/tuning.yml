@@ -9,27 +9,26 @@
     reload: true
     sysctl_set: true
   with_items:
-  - {key: 'vm.dirty_background_ratio', value: '5'}
-  - {key: 'vm.dirty_ratio', value: '20'}
-  - {key: 'vm.vfs_cache_pressure', value: '50'}
-  - {key: 'vm.min_free_kbytes', value: '262144'}
-  - {key: 'vm.zone_reclaim_mode', value: '1'}
+    - {key: 'vm.dirty_background_ratio', value: '5'}
+    - {key: 'vm.dirty_ratio', value: '20'}
+    - {key: 'vm.vfs_cache_pressure', value: '50'}
+    - {key: 'vm.min_free_kbytes', value: '262144'}
+    - {key: 'vm.zone_reclaim_mode', value: '1'}
   become: true
 
 - name: Tune beegfs_oss_tunable devices
   block:
-  - name: Copy beegfs-oss-tuning.sh to /opt/beegfs/
-    template:
-      src: beegfs-oss-tuning.sh.j2
-      dest: /opt/beegfs/beegfs-oss-tuning.sh
-      mode: a+x
-    notify: Restart BeeGFS tuning service
-  - name: Copy beegfs-oss-tuning.service to /etc/systemd/system/
-    copy:
-      src: beegfs-oss-tuning.service
-      dest: /etc/systemd/system/
-    notify:
-    - Restart BeeGFS tuning service
+    - name: Copy beegfs-oss-tuning.sh to /opt/beegfs/
+      template:
+        src: beegfs-oss-tuning.sh.j2
+        dest: /opt/beegfs/beegfs-oss-tuning.sh
+        mode: a+x
+      notify: Restart BeeGFS tuning service
+    - name: Copy beegfs-oss-tuning.service to /etc/systemd/system/
+      copy:
+        src: beegfs-oss-tuning.service
+        dest: /etc/systemd/system/
+      notify: Restart BeeGFS tuning service
   when: beegfs_oss_tunable | default([]) | length > 0
   become: true
 ...

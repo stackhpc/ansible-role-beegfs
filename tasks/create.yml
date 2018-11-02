@@ -53,33 +53,33 @@
 
 - name: Stop and delete server and client service
   block:
-  - name: Ensures BeeGFS client service is not running if force_format is requested
-    service:
-      name: beegfs-client
-      state: stopped
-    become: true
-    when:
-    - beegfs_enable.oss | bool
-    - beegfs_enable.client | bool
-  - name: Stop BeeGFS server services
-    service:
-      name: "{{ item.name }}"
-      state: stopped
-    become: true
-    when: item.enable | bool
-    with_items:
-    - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
-    - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}" }
-    - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}" }
-  - name: Remove other beegfs folders
-    file:
-      path: "{{ item.name }}"
-      state: absent
-    become: true
-    when: item.enable | bool
-    with_items:
-    - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" }
-    - { name: "{{ beegfs_mgmt_path }}", enable: "{{ beegfs_enable.mgmt }}" }
+    - name: Ensures BeeGFS client service is not running if force_format is requested
+      service:
+        name: beegfs-client
+        state: stopped
+      become: true
+      when:
+        - beegfs_enable.oss | bool
+        - beegfs_enable.client | bool
+    - name: Stop BeeGFS server services
+      service:
+        name: "{{ item.name }}"
+        state: stopped
+      become: true
+      when: item.enable | bool
+      with_items:
+        - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
+        - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}" }
+        - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}" }
+    - name: Remove other beegfs folders
+      file:
+        path: "{{ item.name }}"
+        state: absent
+      become: true
+      when: item.enable | bool
+      with_items:
+        - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" }
+        - { name: "{{ beegfs_mgmt_path }}", enable: "{{ beegfs_enable.mgmt }}" }
   when: beegfs_force_format | bool
 
 - include: rdma.yml
@@ -131,10 +131,10 @@
   become: true
   when: item.enable | bool
   with_items:
-  - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}", state: started }
-  - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}", state: started }
-  - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}", state: started }
-  - { name: beegfs-oss-tuning, enable: "{{ beegfs_enable.tuning }}" }
+    - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}", state: started }
+    - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}", state: started }
+    - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}", state: started }
+    - { name: beegfs-oss-tuning, enable: "{{ beegfs_enable.tuning }}" }
 
 - name: Start and enable BeeGFS storage services
   service:
@@ -153,8 +153,8 @@
   become: true
   when: item.enable | bool
   with_items:
-  - { name: beegfs-helperd, enable: "{{ beegfs_enable.client }}" }
-  - { name: beegfs-client, enable: "{{ beegfs_enable.client }}" }
+    - { name: beegfs-helperd, enable: "{{ beegfs_enable.client }}" }
+    - { name: beegfs-client, enable: "{{ beegfs_enable.client }}" }
   retries: 3
   delay: 3
   register: result

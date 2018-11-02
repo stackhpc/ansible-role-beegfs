@@ -15,32 +15,32 @@
 
 - name: Prepare metadata block storage
   block:
-  - name: Ensure storage device is not currently mounted
-    mount:
-      path: "{{ beegfs_meta_path }}"
-      state: unmounted
-    notify: Restart BeeGFS meta service
-  - name: Format filesystem
-    vars:
-      meta_fstype: "{{ beegfs_meta_fstype | default(beegfs_fstype) }}"
-    filesystem:
-      dev: "{{ beegfs_meta_dev }}"
-      fstype: "{{ meta_fstype }}"
-      force: "{{ beegfs_force_format }}"
-    notify: Restart BeeGFS meta service
-  - name: Mount filesystem
-    vars:
-      meta_fstype: "{{ beegfs_meta_fstype | default(beegfs_fstype) }}"
-    mount:
-      src: "{{ beegfs_meta_dev }}"
-      path: "{{ beegfs_meta_path }}"
-      fstype: "{{ meta_fstype }}"
-      state: mounted
-    notify: Restart BeeGFS meta service
+    - name: Ensure storage device is not currently mounted
+      mount:
+        path: "{{ beegfs_meta_path }}"
+        state: unmounted
+      notify: Restart BeeGFS meta service
+    - name: Format filesystem
+      vars:
+        meta_fstype: "{{ beegfs_meta_fstype | default(beegfs_fstype) }}"
+      filesystem:
+        dev: "{{ beegfs_meta_dev }}"
+        fstype: "{{ meta_fstype }}"
+        force: "{{ beegfs_force_format }}"
+      notify: Restart BeeGFS meta service
+    - name: Mount filesystem
+      vars:
+        meta_fstype: "{{ beegfs_meta_fstype | default(beegfs_fstype) }}"
+      mount:
+        src: "{{ beegfs_meta_dev }}"
+        path: "{{ beegfs_meta_path }}"
+        fstype: "{{ meta_fstype }}"
+        state: mounted
+      notify: Restart BeeGFS meta service
   become: true
   when:
-  - beegfs_meta_dev is defined
-  - beegfs_meta_dev != None
+    - beegfs_meta_dev is defined
+    - beegfs_meta_dev != None
 
 - name: Run metadata service setup script
   command: "/opt/beegfs/sbin/beegfs-setup-meta -p {{ beegfs_meta_path }} -m {{ beegfs_mgmt_host }} -f"

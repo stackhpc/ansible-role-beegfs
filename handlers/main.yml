@@ -34,8 +34,8 @@
     state: restarted
   become: true
   with_items:
-  - beegfs-helperd
-  - beegfs-client
+    - beegfs-helperd
+    - beegfs-client
   when: beegfs_enable.client | bool
   retries: 3
   delay: 3
