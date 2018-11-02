@@ -3,21 +3,21 @@
   get_url:
     url: "{{ beegfs_repo_url }}"
     dest: "{{ beegfs_repo_file }}"
-  become: yes
+  become: true
 
 - name: Load package repo key
   block:
-    - apt_key:
+    - name: add apt key for debian family machines
+      apt_key:
         state: present
         url: "{{ beegfs_repo_key }}"
       when: ansible_os_family == "Debian"
-      tags: skip_ansible_lint # avoid ansible line warning "All tasks should be named"
-    - rpm_key:
+    - name: add rpm key for redhat family machines
+      rpm_key:
         state: present
         key: "{{ beegfs_repo_key }}"
       when: ansible_os_family == "RedHat"
-      tags: skip_ansible_lint # avoid ansible line warning "All tasks should be named"
-  become: yes
+  become: true
 
 # Task flow inspired by MichaelRigart.interfaces role - thanks markgoddard
 # Some systems do not support /etc/modules-load.d, in which case we fall back
@@ -31,7 +31,7 @@
   modprobe:
     name: "{{ item }}"
     state: present
-  become: yes
+  become: true
   with_items: "{{ beegfs_kmod_preload }}"
 
 - name: Make sure required modules are loaded at boot via /etc/modules-load.d
@@ -39,7 +39,7 @@
     dest: /etc/modules-load.d/beegfs.conf
     line: "{{ item }}"
     create: yes
-  become: yes
+  become: true
   when: modules_load_stat.stat.exists
   with_items: "{{ beegfs_kmod_preload }}"
 
@@ -47,7 +47,7 @@
   lineinfile:
     dest: /etc/modules
     line: "{{ item }}"
-  become: yes
+  become: true
   when: not modules_load_stat.stat.exists
   with_items: "{{ beegfs_kmod_preload }}"
 
@@ -57,7 +57,7 @@
     service:
       name: beegfs-client
       state: stopped
-    become: yes
+    become: true
     when:
     - beegfs_enable.oss | bool
     - beegfs_enable.client | bool
@@ -65,7 +65,7 @@
     service:
       name: "{{ item.name }}"
       state: stopped
-    become: yes
+    become: true
     when: item.enable | bool
     with_items:
     - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
@@ -75,7 +75,7 @@
     file:
       path: "{{ item.name }}"
       state: absent
-    become: yes
+    become: true
     when: item.enable | bool
     with_items:
     - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" }
@@ -121,14 +121,14 @@
   template:
     src: connInterfacesFile.j2
     dest: /etc/beegfs/connInterfacesFile
-  become: yes
+  become: true
 
 - name: Start and enable BeeGFS server services
   service:
     name: "{{ item.name }}"
     enabled: yes
     state: "{{ item.state | default(omit) }}"
-  become: yes
+  become: true
   when: item.enable | bool
   with_items:
   - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}", state: started }
@@ -141,7 +141,7 @@
     name: "beegfs-storage@{{ item.port }}"
     enabled: yes
     state: started
-  become: yes
+  become: true
   when: beegfs_enable.oss | bool
   with_items: "{{ beegfs_oss }}"
 
@@ -150,7 +150,7 @@
     name: "{{ item.name }}"
     enabled: yes
     state: started
-  become: yes
+  become: true
   when: item.enable | bool
   with_items:
   - { name: beegfs-helperd, enable: "{{ beegfs_enable.client }}" }

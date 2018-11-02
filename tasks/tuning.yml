@@ -14,7 +14,7 @@
   - {key: 'vm.vfs_cache_pressure', value: '50'}
   - {key: 'vm.min_free_kbytes', value: '262144'}
   - {key: 'vm.zone_reclaim_mode', value: '1'}
-  become: yes
+  become: true
 
 - name: Tune beegfs_oss_tunable devices
   block:
@@ -31,5 +31,5 @@
     notify:
     - Restart BeeGFS tuning service
   when: beegfs_oss_tunable | default([]) | length > 0
-  become: yes
+  become: true
 ...

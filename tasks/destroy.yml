@@ -3,7 +3,7 @@
   mount:
     path: "{{ item.path }}"
     state: unmounted
-  become: yes
+  become: true
   when: beegfs_enable.client | bool
   with_items: "{{ beegfs_client }}"
 
@@ -12,7 +12,7 @@
     name: "{{ item.name }}"
     enabled: no
     state: stopped
-  become: yes
+  become: true
   when: item.enable | bool
   with_items:
   - { name: beegfs-helperd, enable: "{{ beegfs_enable.client }}" }
@@ -23,7 +23,7 @@
     name: "beegfs-storage@{{ item.dev }}"
     enabled: no
     state: stopped
-  become: yes
+  become: true
   when: beegfs_enable.oss | bool
   with_items: "{{ beegfs_oss }}"
 
@@ -32,7 +32,7 @@
     name: "beegfs-storage@{{ item.port }}"
     enabled: no
     state: stopped
-  become: yes
+  become: true
   when: beegfs_enable.oss | bool
   with_items: "{{ beegfs_oss }}"
 
@@ -41,7 +41,7 @@
     name: "{{ item.name }}"
     enabled: no
     state: stopped
-  become: yes
+  become: true
   when: item.enable | bool
   with_items:
   - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
@@ -55,7 +55,7 @@
     regexp: "^storeStorageDirectory"
     line: "storeStorageDirectory ="
   with_items: "{{ beegfs_oss }}"
-  become: yes
+  become: true
   when: beegfs_enable.oss | bool
 
 - name: Unmount BeeGFS oss paths if mounted
@@ -64,7 +64,7 @@
   mount:
     path: "{{ oss_path }}"
     state: unmounted
-  become: yes
+  become: true
   with_items: "{{ beegfs_oss }}"
   when:
   - beegfs_enable.oss | bool
@@ -76,7 +76,7 @@
   file:
     path: "{{ oss_path }}"
     state: absent
-  become: yes
+  become: true
   with_items: "{{ beegfs_oss }}"
   when:
   - beegfs_enable.oss | bool
@@ -86,7 +86,7 @@
   file:
     path: "{{ item.name }}"
     state: absent
-  become: yes
+  become: true
   when: item.enable | bool
   with_items:
   - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" }

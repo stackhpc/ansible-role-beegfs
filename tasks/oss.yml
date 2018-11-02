@@ -3,7 +3,7 @@
   package:
     name: beegfs-storage
     state: present
-  become: yes
+  become: true
   notify: Restart BeeGFS storage service
 
 - name: Create a list of devices that are mounted
@@ -14,7 +14,7 @@
   service:
     name: "beegfs-storage@{{ oss_port }}"
     state: stopped
-  become: yes
+  become: true
   when: beegfs_force_format | bool
   notify: Restart BeeGFS storage service
 
@@ -22,7 +22,7 @@
   file:
     path: "/etc/beegfs/{{ oss_port }}.d/"
     state: directory
-  become: yes
+  become: true
   notify: Restart BeeGFS storage service
 
 - name: Add template beegfs-storage conf
@@ -31,7 +31,7 @@
     dest: "/etc/beegfs/{{ oss_port }}.d/beegfs-storage.conf"
     remote_src: yes
     force: no
-  become: yes
+  become: true
   notify: Restart BeeGFS storage service
 
 - name: Prepare storage devices
@@ -64,7 +64,7 @@
       opts: "{{ beegfs_mount_opts }}"
     when: oss_dev is defined
     notify: Restart BeeGFS storage service
-  become: yes
+  become: true
 
 - name: Run storage service setup script
   command: |
@@ -78,7 +78,7 @@
     -f
   args:
     creates: "{{ oss_path }}/originalNodeID"
-  become: yes
+  become: true
   notify: Restart BeeGFS storage service
 
 - name: set TCP storage port
@@ -86,7 +86,7 @@
     path: "/etc/beegfs/{{ oss_port }}.d/beegfs-storage.conf"
     regexp: '^connStoragePortTCP'
     line: "connStoragePortTCP = {{ oss_port }}"
-  become: yes
+  become: true
   notify: Restart BeeGFS storage service
 
 - name: set UDP storage port
@@ -94,7 +94,7 @@
     path: "/etc/beegfs/{{ oss_port }}.d/beegfs-storage.conf"
     regexp: '^connStoragePortUDP'
     line: "connStoragePortUDP = {{ oss_port }}"
-  become: yes
+  become: true
   notify: Restart BeeGFS storage service
 
 - name: Specify connInterfacesFile
@@ -102,6 +102,6 @@
     path: /etc/beegfs/beegfs-storage.conf
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
-  become: yes
+  become: true
   notify: Restart BeeGFS storage service
 ...
