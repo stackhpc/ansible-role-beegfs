@@ -47,7 +47,7 @@ And a corresponding playbook as this (`beegfs.yml`):
       - role: stackhpc.beegfs
         beegfs_enable:
           mgmt: "{{ inventory_hostname in groups['cluster_beegfs_mgmt'] }}"
-          admon: no
+          admon: false
           meta: "{{ inventory_hostname in groups['cluster_beegfs_mds'] }}"
           oss: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
           tuning: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
@@ -64,9 +64,9 @@ And a corresponding playbook as this (`beegfs.yml`):
         - path: "/mnt/beegfs"
           port: 8004
         beegfs_fstype: "xfs"
-        beegfs_force_format: no
+        beegfs_force_format: false
         beegfs_interfaces: ["ib0"]
-        beegfs_rdma: yes
+        beegfs_rdma: true
         beegfs_state: present
     ...
 
@@ -81,7 +81,7 @@ To destroy a cluster:
 ## Notes
 
 Enabling various BeegFS services is as simple as configuring toggles
-under `beegfs_enable` to `yes` or `no` where:
+under `beegfs_enable` to `true` or `false` where:
 
 - `mgmt`: Management server - minimum one host
 - `mds`: Metadata storage server nodes
@@ -97,7 +97,7 @@ respectively. This may be done via DNS or `/etc/hosts`.
 It is important to note that when provisioning the cluster, if the block
 devices specified already have a file system specified, or the disk is not
 empty, it is important to force format the disk. This can be set my setting
-`beegfs_force_format` to `yes`. THIS WILL DELETE THE CONTENT OF THE DISK(S).
+`beegfs_force_format` to `true`. THIS WILL DELETE THE CONTENT OF THE DISK(S).
 Make sure you have made backups if you care about their content.
 
 Partitions are supported but they must already have been created through
@@ -131,6 +131,6 @@ following playbook:
           part_end: "{{ item.end }}"
           number: "{{ item.number }}"
         with_items: "{{ partitions }}"
-        become: yes
+        become: true
     ...
 
