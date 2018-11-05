@@ -14,11 +14,11 @@ galaxy_info:
         - 7
     - name: Debian
       versions:
-        - 9
+        - "stretch"
     - name: Ubuntu
       versions:
-        - 16.04
-        - 18.04
+        - "xenial"
+        - "bionic"
   galaxy_tags:
     - cloud
     - storage
