@@ -83,16 +83,16 @@
   when: beegfs_force_format | bool
 
 - include: rdma.yml
-  when: beegfs_enable.rdma | default(no) | bool
+  when: beegfs_enable.rdma | default(false) | bool
 
 - include: mgmt.yml
-  when: beegfs_enable.mgmt | default(no) | bool
+  when: beegfs_enable.mgmt | default(false) | bool
 
 - include: admon.yml
-  when: beegfs_enable.admon | default(no) | bool
+  when: beegfs_enable.admon | default(false) | bool
 
 - include: meta.yml
-  when: beegfs_enable.meta | default(no) | bool
+  when: beegfs_enable.meta | default(false) | bool
 
 - include: oss.yml
   vars:
@@ -102,10 +102,10 @@
   with_items: "{{ beegfs_oss }}"
   loop_control:
     loop_var: oss_item
-  when: beegfs_enable.oss | default(no) | bool
+  when: beegfs_enable.oss | default(false) | bool
 
 - include: tuning.yml
-  when: beegfs_enable.tuning | default(no) | bool
+  when: beegfs_enable.tuning | default(false) | bool
 
 - include: client.yml
   vars:
@@ -115,7 +115,7 @@
   with_items: "{{ beegfs_client }}"
   loop_control:
     loop_var: client_item
-  when: beegfs_enable.client | default(no) | bool
+  when: beegfs_enable.client | default(false) | bool
 
 - name: Create connInterfacesFile
   template:
