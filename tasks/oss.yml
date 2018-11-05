@@ -41,7 +41,7 @@
         src: "{{ oss_dev }}"
         path: "{{ oss_path }}"
         state: unmounted
-      when:
+      when: 
         - oss_dev is defined
         - beegfs_force_format | bool
       notify: Restart BeeGFS storage service
@@ -55,6 +55,10 @@
         - oss_dev is defined
         - (oss_dev not in mounted_devs) or (beegfs_force_format | bool)
       notify: Restart BeeGFS storage service
+    - name: Ensure the mount point exists
+      file:
+        path: "{{ oss_path }}"
+        state: directory
     - name: Mount filesystem, fail if the fstype doesn't match
       mount:
         src: "{{ oss_dev }}"
@@ -64,7 +68,7 @@
         opts: "{{ beegfs_mount_opts }}"
       when: oss_dev is defined
       notify: Restart BeeGFS storage service
-  become: true
+  become: yes
 
 - name: Run storage service setup script
   command: |

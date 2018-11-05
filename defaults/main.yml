@@ -32,6 +32,7 @@ beegfs_distro_vars:
       - "rdma-core"
       - "libibverbs"
       - "libibverbs-utils"
+      - "libbeegfs-ib"
 
   Debian:
     beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs_deb9.list"
@@ -43,6 +44,7 @@ beegfs_distro_vars:
       - "libibmad-dev"
       - "libibumad-dev"
       - "libibverbs-dev"
+      - "libbeegfs-ib"
 
 # BeeGFS repo
 beegfs_repo_url: "{{ beegfs_distro_vars[ansible_os_family]['beegfs_repo_url'] }}"
