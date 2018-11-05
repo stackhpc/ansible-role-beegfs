@@ -63,24 +63,16 @@
   block:
     - name: Probe installed services
       service_facts:
-    - name: Ensures BeeGFS client service is not running if force_format is requested
-      service:
-        name: beegfs-client
-        state: stopped
-      become: true
-      when:
-        - "'beegfs-client.service' in ansible_facts.services"
-        - beegfs_enable.client | bool
-        - beegfs_enable.oss | bool
-    - name: Stop BeeGFS server services
+    - name: Stop BeeGFS server and client services
       service:
         name: "{{ item.name }}"
         state: stopped
-      become: true
       when:
         - item.name in ansible_facts.services
         - item.enable | bool
       with_items:
+        - { name: "beegfs-client.service", enable: "{{ beegfs_enable.client }}" }
+        - { name: "beegfs-helperd.service", enable: "{{ beegfs_enable.client }}" }
         - { name: "beegfs-mgmtd.service", enable: "{{ beegfs_enable.mgmt }}" }
         - { name: "beegfs-meta.service", enable: "{{ beegfs_enable.meta }}" }
         - { name: "beegfs-admon.service", enable: "{{ beegfs_enable.admon }}" }
@@ -88,12 +80,12 @@
       file:
         path: "{{ item.name }}"
         state: absent
-      become: true
       when: item.enable | bool
       with_items:
         - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" }
         - { name: "{{ beegfs_mgmt_path }}", enable: "{{ beegfs_enable.mgmt }}" }
-  when: beegfs_force_format | bool
+  when: (beegfs_force_format | bool) or (beegfs_package | lower == "latest")
+  become: true
 
 - include: rdma.yml
   when: beegfs_enable.rdma | default(false) | bool
