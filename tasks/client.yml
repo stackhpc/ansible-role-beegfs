@@ -10,11 +10,6 @@
   become: true
   notify: Restart BeeGFS client service
 
-- name: Detect the version of the running kernel
-  command: "uname -r"
-  register: kernel_version
-  changed_when: false
-
 - name: Define client kernel build for IB
   lineinfile:
     path: "/etc/beegfs/beegfs-client-autobuild.conf"
@@ -29,7 +24,7 @@
   
 - name: Ensure kernel development headers are present
   package:
-    name: "{{ beegfs_distro_vars[ansible_os_family]['kernel_dev_pkg'] }}-{{ kernel_version.stdout }}"
+    name: "{{ beegfs_distro_vars[ansible_os_family]['kernel_dev_pkg'] }}-{{ ansible_kernel }}"
     state: present
   notify: Restart BeeGFS client service
   become: true
@@ -44,7 +39,7 @@
 - name: Rebuild the BeeGFS client kernel module
   command: /etc/init.d/beegfs-client rebuild
   args:
-    creates: "/lib/modules/{{kernel_version.stdout}}/updates/fs/beegfs_autobuild/beegfs.ko"
+    creates: "/lib/modules/{{ ansible_kernel }}/updates/fs/beegfs_autobuild/beegfs.ko"
   become: true
   notify: Restart BeeGFS client service
 
