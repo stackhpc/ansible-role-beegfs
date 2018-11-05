@@ -46,8 +46,9 @@ And a corresponding playbook as this (`beegfs.yml`):
       roles:
       - role: stackhpc.beegfs
         beegfs_enable:
-          mgmt: "{{ inventory_hostname in groups['cluster_beegfs_mgmt'] }}"
           admon: false
+          rdma: true
+          mgmt: "{{ inventory_hostname in groups['cluster_beegfs_mgmt'] }}"
           meta: "{{ inventory_hostname in groups['cluster_beegfs_mds'] }}"
           oss: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
           tuning: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
