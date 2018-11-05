@@ -1,12 +1,12 @@
 ---
 # Option to enable/disable services
 beegfs_enable:
-  mgmt: no
-  meta: no
-  oss: no
-  admon: no
-  client: no
-  tuning: no
+  mgmt: false
+  meta: false
+  oss: false
+  admon: false
+  client: false
+  tuning: false
 
 # Can be present or absent
 beegfs_state: present
@@ -20,7 +20,7 @@ beegfs_interfaces: []
 
 # Distribution-specific parameters
 beegfs_distro_vars:
-  RedHat: 
+  RedHat:
     beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs_rhel7.repo"
     beegfs_repo_key: "https://www.beegfs.io/release/latest-stable/gpg/RPM-GPG-KEY-beegfs"
     beegfs_repo_file: "/etc/yum.repos.d/beegfs-rhel7.repo"
@@ -50,30 +50,30 @@ beegfs_repo_key: "{{ beegfs_distro_vars[ansible_os_family]['beegfs_repo_key'] }}
 beegfs_repo_file: "{{ beegfs_distro_vars[ansible_os_family]['beegfs_repo_file'] }}"
 
 # Define to enable support for BeeGFS data transport over RDMA (IB, OPA, RoCE)
-beegfs_rdma: yes
+beegfs_rdma: true
 
 # Default filesystem options
 beegfs_filesystem_opts: "-K -d su=128k,sw=8 -l version=2,su=128k -isize=512"
 beegfs_mount_opts: "noatime,nodiratime,logbufs=8,logbsize=256k,largeio,inode64,swalloc,allocsize=131072k,nobarrier"
-beegfs_force_format: no
+beegfs_force_format: false
 beegfs_fstype: "xfs"
 
 # Storage server options
 beegfs_oss_path_prefix: "/data/beegfs/beegfs_oss"
 beegfs_oss:
-- port: 8003
-  dev: "/dev/sdb"
-  path: # specifying dev overrides path
+  - port: 8003
+    dev: "/dev/sdb"
+    path:  # specifying dev overrides path
 beegfs_oss_tunable: "{{ beegfs_oss | map(attribute='dev') | map('relpath', '/dev/' ) | list }}"
 
 # Management options
 beegfs_mgmt_path: "/data/beegfs/beegfs_mgmtd"
-beegfs_mgmt_host: # "{{ groups['cluster_beegfs_mgmt'] | first }}"
+beegfs_mgmt_host:  # "{{ groups['cluster_beegfs_mgmt'] | first }}"
 
 # Metadata storage options
 beegfs_meta_path: "/data/beegfs/beegfs_meta"
-beegfs_meta_dev: # /dev/sdb
-beegfs_meta_fstype: # "ext4"
+beegfs_meta_dev:  # /dev/sdb
+beegfs_meta_fstype:  # "ext4"
 
 # Client mount configs
 beegfs_client: []

@@ -4,10 +4,10 @@
     name: "{{ item }}"
     state: present
   with_items:
-  - beegfs-client
-  - beegfs-helperd
-  - beegfs-utils
-  become: yes
+    - beegfs-client
+    - beegfs-helperd
+    - beegfs-utils
+  become: true
   notify: Restart BeeGFS client service
 
 - name: Detect the version of the running kernel
@@ -17,39 +17,39 @@
 
 - name: Define client kernel build for IB
   block:
-  - name: Define client kernel build for IB
-    lineinfile: 
-      path: "/etc/beegfs/beegfs-client-autobuild.conf"
-      regexp: "^buildArgs="
-      line: "buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1"
-    notify: Restart BeeGFS client service
-  - name: Ensure kernel development headers are present
-    package:
-      name: "{{ beegfs_distro_vars[ansible_os_family]['kernel_dev_pkg'] }}-{{ kernel_version.stdout }}"
-      state: present
-    notify: Restart BeeGFS client service
-  become: yes
+    - name: Define client kernel build for IB
+      lineinfile:
+        path: "/etc/beegfs/beegfs-client-autobuild.conf"
+        regexp: "^buildArgs="
+        line: "buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1"
+      notify: Restart BeeGFS client service
+    - name: Ensure kernel development headers are present
+      package:
+        name: "{{ beegfs_distro_vars[ansible_os_family]['kernel_dev_pkg'] }}-{{ kernel_version.stdout }}"
+        state: present
+      notify: Restart BeeGFS client service
+  become: true
   when: beegfs_rdma | bool
 
 - name: Ensure gcc is installed
   package:
     name: "gcc"
     state: present
-  become: yes
+  become: true
   notify: Restart BeeGFS client service
 
 - name: Rebuild the BeeGFS client kernel module
   command: /etc/init.d/beegfs-client rebuild
   args:
     creates: "/lib/modules/{{kernel_version.stdout}}/updates/fs/beegfs_autobuild/beegfs.ko"
-  become: yes
+  become: true
   notify: Restart BeeGFS client service
 
 - name: Ensure the BeeGFS mount point exists
   file:
     path: "{{ client_path }}"
     state: directory
-  become: yes
+  become: true
   notify: Restart BeeGFS client service
 
 - name: Copy over beegfs-mounts config file
@@ -57,16 +57,16 @@
     src: beegfs-mounts.conf.j2
     dest: /etc/beegfs/beegfs-mounts.conf
     mode: 0644
-  become: yes 
+  become: true
   notify: Restart BeeGFS client service
 
 - name: Make of copy of BeeGFS client config file if it doesn't exist
   copy:
-    remote_src: yes
+    remote_src: true
     src: /etc/beegfs/beegfs-client.conf
     dest: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
-    force: no
-  become: yes
+    force: false
+  become: true
   notify: Restart BeeGFS client service
 
 - name: Configure beegfs-client config file to point to the specified management host
@@ -74,28 +74,28 @@
     dest: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
     regexp: "^sysMgmtdHost"
     line: "sysMgmtdHost = {{ client_mgmt_host }}"
-  become: yes
+  become: true
 
 - name: Configure beegfs-client config file to use the specified port
   lineinfile:
     dest: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
     regexp: "^connClientPortUDP"
     line: "connClientPortUDP = {{ client_port }}"
-  become: yes
+  become: true
 
 - name: Configure beegfs-client config file to ensure the specifed connection interface is used
   lineinfile:
     dest: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile = /etc/beegfs/connInterfacesFile"
-  become: yes
+  become: true
 
 - name: Copy default beegfs-client config file to enable beegfs_ctl in the management host
   copy:
-    remote_src: yes
+    remote_src: true
     dest: /etc/beegfs/beegfs-client.conf
     src: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
-    force: yes
+    force: true
   when: client_mgmt_host == inventory_hostname
-  become: yes
+  become: true
 ...
