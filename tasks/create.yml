@@ -81,9 +81,9 @@
         - item.name in ansible_facts.services
         - item.enable | bool
       with_items:
-        - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
-        - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}" }
-        - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}" }
+        - { name: "beegfs-mgmtd.service", enable: "{{ beegfs_enable.mgmt }}" }
+        - { name: "beegfs-meta.service", enable: "{{ beegfs_enable.meta }}" }
+        - { name: "beegfs-admon.service", enable: "{{ beegfs_enable.admon }}" }
     - name: Remove other beegfs folders
       file:
         path: "{{ item.name }}"
