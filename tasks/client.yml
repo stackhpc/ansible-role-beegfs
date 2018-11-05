@@ -38,6 +38,20 @@
   become: true
   notify: Restart BeeGFS client service
 
+- name: install dependencies to build kernel modules
+  block:
+    - name: install kernel-headers deb
+      apt:
+        name: "linux-headers-{{ ansible_kernel }}"
+        state: present
+      when: ansible_os_family == "Debian"
+    - name: install kernel-devel rpm
+      yum:
+        name: "kernel-devel-{{ ansible_kernel }}"
+        state: present
+      when: ansible_os_family == "RedHat"
+  become: true
+
 - name: Rebuild the BeeGFS client kernel module
   command: /etc/init.d/beegfs-client rebuild
   args:
