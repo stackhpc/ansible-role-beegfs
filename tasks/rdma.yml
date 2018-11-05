@@ -3,15 +3,15 @@
   package:
     name: "{{ beegfs_distro_vars[ansible_os_family]['rdma_dev_pkgs'] }}"
     state: present
-  become: yes
+  become: true
 
 - name: Ensure RDMA kernel modules are loaded
   modprobe:
     name: "{{ item }}"
     state: present
-  become: yes
+  become: true
   with_items:
-  - "ib_umad"
-  - "ib_uverbs"
-  - "rdma_ucm"
+    - "ib_umad"
+    - "ib_uverbs"
+    - "rdma_ucm"
 ...

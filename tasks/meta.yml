@@ -3,50 +3,50 @@
   package:
     name: beegfs-meta
     state: present
-  become: yes
+  become: true
   notify: Restart BeeGFS meta service
 
 - name: Create directory for BeeGFS metadata
   file:
     path: "{{ beegfs_meta_path }}"
     state: directory
-  become: yes
+  become: true
   notify: Restart BeeGFS meta service
 
 - name: Prepare metadata block storage
   block:
-  - name: Ensure storage device is not currently mounted
-    mount:
-      path: "{{ beegfs_meta_path }}"
-      state: unmounted
-    notify: Restart BeeGFS meta service
-  - name: Format filesystem
-    vars:
-      meta_fstype: "{{ beegfs_meta_fstype | default(beegfs_fstype) }}"
-    filesystem:
-      dev: "{{ beegfs_meta_dev }}"
-      fstype: "{{ meta_fstype }}"
-      force: "{{ beegfs_force_format }}"
-    notify: Restart BeeGFS meta service
-  - name: Mount filesystem
-    vars:
-      meta_fstype: "{{ beegfs_meta_fstype | default(beegfs_fstype) }}"
-    mount:
-      src: "{{ beegfs_meta_dev }}"
-      path: "{{ beegfs_meta_path }}"
-      fstype: "{{ meta_fstype }}"
-      state: mounted
-    notify: Restart BeeGFS meta service
-  become: yes
+    - name: Ensure storage device is not currently mounted
+      mount:
+        path: "{{ beegfs_meta_path }}"
+        state: unmounted
+      notify: Restart BeeGFS meta service
+    - name: Format filesystem
+      vars:
+        meta_fstype: "{{ beegfs_meta_fstype | default(beegfs_fstype) }}"
+      filesystem:
+        dev: "{{ beegfs_meta_dev }}"
+        fstype: "{{ meta_fstype }}"
+        force: "{{ beegfs_force_format }}"
+      notify: Restart BeeGFS meta service
+    - name: Mount filesystem
+      vars:
+        meta_fstype: "{{ beegfs_meta_fstype | default(beegfs_fstype) }}"
+      mount:
+        src: "{{ beegfs_meta_dev }}"
+        path: "{{ beegfs_meta_path }}"
+        fstype: "{{ meta_fstype }}"
+        state: mounted
+      notify: Restart BeeGFS meta service
+  become: true
   when:
-  - beegfs_meta_dev is defined
-  - beegfs_meta_dev != None
+    - beegfs_meta_dev is defined
+    - beegfs_meta_dev != None
 
 - name: Run metadata service setup script
   command: "/opt/beegfs/sbin/beegfs-setup-meta -p {{ beegfs_meta_path }} -m {{ beegfs_mgmt_host }} -f"
   args:
     creates: "{{ beegfs_meta_path }}/originalNodeID"
-  become: yes
+  become: true
   notify: Restart BeeGFS meta service
 
 - name: Specify connInterfacesFile
@@ -54,6 +54,6 @@
     path: /etc/beegfs/beegfs-meta.conf
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
-  become: yes
+  become: true
   notify: Restart BeeGFS meta service
 ...
