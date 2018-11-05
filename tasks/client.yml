@@ -16,20 +16,23 @@
   changed_when: false
 
 - name: Define client kernel build for IB
-  block:
-    - name: Define client kernel build for IB
-      lineinfile:
-        path: "/etc/beegfs/beegfs-client-autobuild.conf"
-        regexp: "^buildArgs="
-        line: "buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1"
-      notify: Restart BeeGFS client service
-    - name: Ensure kernel development headers are present
-      package:
-        name: "{{ beegfs_distro_vars[ansible_os_family]['kernel_dev_pkg'] }}-{{ kernel_version.stdout }}"
-        state: present
-      notify: Restart BeeGFS client service
+  lineinfile:
+    path: "/etc/beegfs/beegfs-client-autobuild.conf"
+    regexp: "^buildArgs="
+    line: "{{ item.line }}"
+  when: item.condition
+  with_items:
+    - { line: "buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1", condition: "{{ beegfs_rdma | bool }}" }
+    - { line: "buildArgs=-j8", condition: "{{ not beegfs_rdma | bool }}" }
+  notify: Restart BeeGFS client service
   become: true
-  when: beegfs_rdma | bool
+  
+- name: Ensure kernel development headers are present
+  package:
+    name: "{{ beegfs_distro_vars[ansible_os_family]['kernel_dev_pkg'] }}-{{ kernel_version.stdout }}"
+    state: present
+  notify: Restart BeeGFS client service
+  become: true
 
 - name: Ensure gcc is installed
   package:
