@@ -84,4 +84,5 @@ beegfs_client: []
 #   port: 8004 # If there are multiple clients, use different port for each client.
 #   mgmt_host: # Use this to override the default beegfs_mgmt_host in cases there are multiple clients.
 
+beegfs_package: present # choose latest to upgrade
 ...
