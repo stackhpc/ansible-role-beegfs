@@ -24,9 +24,13 @@ install:
   # Compensate for repo name being different to the role
   - ln -s ansible-role-beegfs ../stackhpc.beegfs
 
+  # install molecule
+  - pip install molecule
+
 script:
   # Basic role syntax check
   - ansible-playbook tests/test.yml -i tests/inventory --syntax-check
+  - molecule lint
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
