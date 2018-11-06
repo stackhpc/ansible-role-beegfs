@@ -88,7 +88,7 @@
   become: true
 
 - include: rdma.yml
-  when: beegfs_enable.rdma | default(false) | bool
+  when: beegfs_enable.rdma | default(beegfs_rdma) | bool
 
 - include: mgmt.yml
   when: beegfs_enable.mgmt | default(false) | bool
