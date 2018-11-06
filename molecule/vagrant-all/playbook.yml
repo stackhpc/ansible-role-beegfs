@@ -4,9 +4,9 @@
   roles:
     - role: ansible-role-beegfs
       beegfs_enable:
-        mgmt: "{{ inventory_hostname in groups['cluster_beegfs_mgmt'] }}"
         admon: false
         rdma: false
+        mgmt: "{{ inventory_hostname in groups['cluster_beegfs_mgmt'] }}"
         meta: "{{ inventory_hostname in groups['cluster_beegfs_mds'] }}"
         oss: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
         tuning: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
@@ -14,7 +14,7 @@
       beegfs_oss:
         - dev: "/dev/sdb"
           port: 8003
-      beegfs_mgmt_host: "{{ groups['cluster_beegfs_mgmt'] | first }}"
+      beegfs_mgmt_host: "{{ inventory_hostname }}"
       beegfs_client:
         - path: "/mnt/beegfs"
           port: 8004
