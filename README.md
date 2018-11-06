@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/stackhpc/ansible-role-beegfs.svg?branch=master)](https://travis-ci.com/stackhpc/ansible-role-beegfs)
+
 # stackhpc.beegfs
 
 This Ansible role can be used to create and destroy a BeegFS cluster. In
