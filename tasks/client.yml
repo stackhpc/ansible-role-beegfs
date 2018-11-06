@@ -21,7 +21,7 @@
     - { line: "buildArgs=-j8", condition: "{{ not beegfs_rdma | bool }}" }
   notify: Restart BeeGFS client service
   become: true
-  
+
 - name: Ensure kernel development headers are present
   package:
     name: "{{ beegfs_distro_vars[ansible_os_family]['kernel_dev_pkg'] }}-{{ ansible_kernel }}"

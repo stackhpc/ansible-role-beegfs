@@ -47,7 +47,6 @@ And a corresponding playbook as this (`beegfs.yml`):
       - role: stackhpc.beegfs
         beegfs_enable:
           admon: false
-          rdma: true
           mgmt: "{{ inventory_hostname in groups['cluster_beegfs_mgmt'] }}"
           meta: "{{ inventory_hostname in groups['cluster_beegfs_mds'] }}"
           oss: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
@@ -135,3 +134,27 @@ following playbook:
         become: true
     ...
 
+## Tests
+
+Some tests are provided in [molecule folder](molecule). To run them locally you need:
+
+- [Vagrant](https://www.vagrantup.com/)
+- [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+- [Molecule](https://molecule.readthedocs.io/en/latest/)
+- [python-vagrant](https://pypi.org/project/python-vagrant/)
+
+Once you have all the dependencies installed you can run the tests from the root folder of the role:
+
+```
+$> molecule lint
+$> molecule test
+$> molecule test -s vagrant-ubuntu-16.04
+$> molecule test -s vagrant-ubuntu-18.04
+```
+
+- The default molecule scenario will test the role in a Centos7.5 machine.
+- All the tests will deploy all the services in a single machine.
+- yaml lint and ansible lint are tested
+- idempotence is checked
+- Once the execution finishes some [testinfra](https://testinfra.readthedocs.io/en/latest/) are
+executed. All the scenarios use the same tests located in [molecule/tests](molecule/tests)

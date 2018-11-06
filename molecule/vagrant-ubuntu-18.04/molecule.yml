@@ -1,0 +1,40 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+  provider:
+    name: virtualbox
+lint:
+  name: yamllint
+  # enabled: false
+platforms:
+  - name: ubuntu18.04-vagrant
+    box: bento/ubuntu-18.04
+    cpus: 1
+    memory: 1024
+    provider_raw_config_args:
+      - "customize ['createhd', '--filename', '/tmp/beegfsDisk-ubuntu2.vdi', '--size', 50 * 1024]"
+      - "customize ['storageattach', :id,  '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', '/tmp/beegfsDisk-ubuntu2.vdi']"
+    groups:
+      - cluster_beegfs_mgmt
+      - cluster_beegfs_mds
+      - cluster_beegfs_oss
+      - cluster_beegfs_client
+provisioner:
+  name: ansible
+  log: true
+  lint:
+    name: ansible-lint
+    # enabled: false
+    options:
+      R: true
+scenario:
+  name: vagrant-ubuntu-18.04
+verifier:
+  name: testinfra
+  directory: ../tests
+  options:
+    verbose: true
+  lint:
+    name: flake8

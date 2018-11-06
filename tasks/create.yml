@@ -23,8 +23,8 @@
   apt:
     name: base-files
     state: present
-    update_cache: yes
-  become: yes 
+    update_cache: true
+  become: true
   when: ansible_os_family == "Debian"
 
 # Task flow inspired by MichaelRigart.interfaces role - thanks markgoddard
@@ -82,13 +82,13 @@
         state: absent
       when: item.enable | bool
       with_items:
-        - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" } 
+        - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" }
         - { name: "{{ beegfs_mgmt_path }}", enable: "{{ beegfs_enable.mgmt }}" }
   when: (beegfs_force_format | bool) or (beegfs_package | lower == "latest")
-  become: yes
+  become: true
 
 - include: rdma.yml
-  when: beegfs_enable.rdma | default(false) | bool
+  when: beegfs_rdma | bool
 
 - include: mgmt.yml
   when: beegfs_enable.mgmt | default(false) | bool

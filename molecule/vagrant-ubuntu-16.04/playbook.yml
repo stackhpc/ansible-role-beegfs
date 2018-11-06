@@ -1,0 +1,24 @@
+---
+- name: Converge
+  hosts: all
+  roles:
+    - role: ansible-role-beegfs
+      beegfs_enable:
+        mgmt: "{{ inventory_hostname in groups['cluster_beegfs_mgmt'] }}"
+        admon: false
+        meta: "{{ inventory_hostname in groups['cluster_beegfs_mds'] }}"
+        oss: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
+        tuning: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
+        client: "{{ inventory_hostname in groups['cluster_beegfs_client'] }}"
+      beegfs_oss:
+        - dev: "/dev/sdb"
+          port: 8003
+      beegfs_mgmt_host: "{{ groups['cluster_beegfs_mgmt'] | first }}"
+      beegfs_client:
+        - path: "/mnt/beegfs"
+          port: 8004
+      beegfs_fstype: "xfs"
+      beegfs_force_format: false
+      beegfs_interfaces: ["eth0"]
+      beegfs_rdma: false
+      beegfs_state: present
