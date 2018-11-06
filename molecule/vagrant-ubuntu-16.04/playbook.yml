@@ -13,10 +13,6 @@
       beegfs_oss:
         - dev: "/dev/sdb"
           port: 8003
-      # - dev: "/dev/sdc"
-      #   port: 8103
-      # - dev: "/dev/sdd"
-      #   port: 8203
       beegfs_mgmt_host: "{{ groups['cluster_beegfs_mgmt'] | first }}"
       beegfs_client:
         - path: "/mnt/beegfs"
