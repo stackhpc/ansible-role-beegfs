@@ -1,36 +1,41 @@
 ---
 - name: Restart BeeGFS mgmt service
-  service:
+  systemd:
     name: beegfs-mgmtd
+    daemon-reload: true
     state: restarted
   become: true
   when: beegfs_enable.mgmt | bool
 
 - name: Restart BeeGFS meta service
-  service:
+  systemd:
     name: beegfs-meta
+    daemon-reload: true
     state: restarted
   become: true
   when: beegfs_enable.meta | bool
 
 - name: Restart BeeGFS storage service
-  service:
+  systemd:
     name: "beegfs-storage@{{ item.port }}"
+    daemon-reload: true
     state: restarted
   become: true
   with_items: "{{ beegfs_oss }}"
   when: beegfs_enable.oss | bool
 
 - name: Restart BeeGFS admon service
-  service:
+  systemd:
     name: beegfs-admon
+    daemon-reload: true
     state: restarted
   become: true
   when: beegfs_enable.admon | bool
 
 - name: Restart BeeGFS client service
-  service:
+  systemd:
     name: "{{ item }}"
+    daemon-reload: true
     state: restarted
   become: true
   with_items:
