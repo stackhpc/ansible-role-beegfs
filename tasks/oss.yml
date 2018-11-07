@@ -2,7 +2,7 @@
 - name: Install packages for BeeGFS object storage server
   package:
     name: beegfs-storage
-    state: "{{ beegfs_package }}"
+    state: "{{ beegfs_package_action }}"
   become: true
   notify: Restart BeeGFS storage service
 

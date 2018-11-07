@@ -87,5 +87,5 @@ beegfs_client: []
 # Should the package manager use the `present` or `latest` flag for
 # BeeGFS? This is useful for upgrading.
 beegfs_update: false
-beegfs_package: "{{ 'latest' if beegfs_update | bool else 'present' }}"
+beegfs_package_action: "{{ 'latest' if beegfs_update | bool else 'present' }}"
 ...

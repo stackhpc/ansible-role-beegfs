@@ -84,7 +84,7 @@
       with_items:
         - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" }
         - { name: "{{ beegfs_mgmt_path }}", enable: "{{ beegfs_enable.mgmt }}" }
-  when: (beegfs_force_format | bool) or (beegfs_package | lower == "latest")
+  when: (beegfs_force_format | bool) or (beegfs_package_action | lower == "latest")
   become: true
 
 - include: rdma.yml
