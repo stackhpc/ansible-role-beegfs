@@ -2,7 +2,7 @@
 - name: Install packages for BeeGFS client
   package:
     name: "{{ item }}"
-    state: present
+    state: "{{ beegfs_package_action }}"
   with_items:
     - beegfs-client
     - beegfs-helperd

@@ -2,7 +2,7 @@
 - name: Install packages for BeeGFS management server
   package:
     name: beegfs-mgmtd
-    state: present
+    state: "{{ beegfs_package_action }}"
   become: true
   notify: Restart BeeGFS mgmt service
 

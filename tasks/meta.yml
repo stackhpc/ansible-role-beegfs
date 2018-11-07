@@ -2,7 +2,7 @@
 - name: Install packages for BeeGFS metadata server
   package:
     name: beegfs-meta
-    state: present
+    state: "{{ beegfs_package_action }}"
   become: true
   notify: Restart BeeGFS meta service
 
