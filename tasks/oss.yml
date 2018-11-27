@@ -10,14 +10,6 @@
   set_fact:
     mounted_devs: "{{ ansible_mounts | map(attribute='device') | list }}"
 
-- name: Ensures BeeGFS storage services are not running
-  service:
-    name: "beegfs-storage@{{ oss_port }}"
-    state: stopped
-  become: true
-  when: beegfs_force_format | bool
-  notify: Restart BeeGFS storage service
-
 - name: Create storage config dirs
   file:
     path: "/etc/beegfs/{{ oss_port }}.d/"
@@ -78,7 +70,7 @@
     -c /etc/beegfs/{{ oss_port }}.d/beegfs-storage.conf \
     -I {{ inventory_hostname }}-{{ oss_port }} \
     -S {{ inventory_hostname }}-{{ oss_port }} \
-    -r \
+    {{ oss_replace }} \
     -f
   args:
     creates: "{{ oss_path }}/originalNodeID"

@@ -67,6 +67,10 @@ beegfs_oss:
     dev: "/dev/sdb"
     path:  # specifying dev overrides path
 beegfs_oss_tunable: "{{ beegfs_oss | map(attribute='dev') | map('relpath', '/dev/' ) | list }}"
+# Whether to support multiple ports per OSS:
+# - if this is set to false, make sure that you configure the ports to the same
+#   value when passing beegfs_oss as an input.
+beegfs_oss_multi_port: true 
 
 # Management options
 beegfs_mgmt_path: "/data/beegfs/beegfs_mgmtd"
