@@ -81,6 +81,11 @@
         - { name: "beegfs-mgmtd.service", enable: "{{ beegfs_enable.mgmt }}" }
         - { name: "beegfs-meta.service", enable: "{{ beegfs_enable.meta }}" }
         - { name: "beegfs-admon.service", enable: "{{ beegfs_enable.admon }}" }
+    - name: Stop BeeGFS storage services
+      service:
+        name: "beegfs-storage@{{ item.port }}.service"
+        state: stopped
+      with_items: "{{ beegfs_oss }}"
     - name: Remove other beegfs folders
       file:
         path: "{{ item.name }}"
@@ -89,7 +94,8 @@
       with_items:
         - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" }
         - { name: "{{ beegfs_mgmt_path }}", enable: "{{ beegfs_enable.mgmt }}" }
-  when: (beegfs_force_format | bool) or (beegfs_package_action | lower == "latest")
+  when: (beegfs_force_format | bool) or
+        (beegfs_package_action | lower == "latest")
   become: true
 
 - include: rdma.yml
@@ -106,6 +112,7 @@
 
 - include: oss.yml
   vars:
+    oss_replace: "{{ '-r' if (oss_item == beegfs_oss|first or beegfs_oss_multi_port|bool == false) else '' }}"
     oss_path: "{{ oss_item.path | default(beegfs_oss_path_prefix + oss_item.dev) }}"
     oss_port: "{{ oss_item.port }}"
     oss_dev: "{{ oss_item.dev | default(omit) }}"
