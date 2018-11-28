@@ -82,10 +82,13 @@
         - { name: "beegfs-meta.service", enable: "{{ beegfs_enable.meta }}" }
         - { name: "beegfs-admon.service", enable: "{{ beegfs_enable.admon }}" }
     - name: Stop BeeGFS storage services
+      vars:
+        service_name: "beegfs-storage@{{ item.port }}.service"
       service:
-        name: "beegfs-storage@{{ item.port }}.service"
+        name: "{{ service_name }}"
         state: stopped
       with_items: "{{ beegfs_oss }}"
+      when: service_name in ansible_facts.services
     - name: Remove other beegfs folders
       file:
         path: "{{ item.name }}"
@@ -112,7 +115,7 @@
 
 - include: oss.yml
   vars:
-    oss_replace: "{{ '-r' if (oss_item == beegfs_oss|first or beegfs_oss_multi_port|bool == false) else '' }}"
+    oss_replace: "{{ '-r' if (oss_item == beegfs_oss|first or beegfs_oss_multi_port) else '' }}"
     oss_path: "{{ oss_item.path | default(beegfs_oss_path_prefix + oss_item.dev) }}"
     oss_port: "{{ oss_item.port }}"
     oss_dev: "{{ oss_item.dev | default(omit) }}"
