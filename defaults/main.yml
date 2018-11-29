@@ -47,6 +47,7 @@ beegfs_distro_vars:
       - "libbeegfs-ib"
 
 # BeeGFS repo
+beegfs_add_repos: true
 beegfs_repo_url: "{{ beegfs_distro_vars[ansible_os_family]['beegfs_repo_url'] }}"
 beegfs_repo_key: "{{ beegfs_distro_vars[ansible_os_family]['beegfs_repo_key'] }}"
 beegfs_repo_file: "{{ beegfs_distro_vars[ansible_os_family]['beegfs_repo_file'] }}"

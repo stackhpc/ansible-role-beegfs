@@ -1,31 +1,36 @@
 ---
-- name: Ensure the BeeGFS package repo is defined
-  get_url:
-    url: "{{ beegfs_repo_url }}"
-    dest: "{{ beegfs_repo_file }}"
-  become: true
-
-- name: Load package repo key
+- name: Add BeeGFS repos is beegfs_add_repos is true
   block:
-    - name: add apt key for debian family machines
-      apt_key:
-        state: present
-        url: "{{ beegfs_repo_key }}"
-      when: ansible_os_family == "Debian"
-    - name: add rpm key for redhat family machines
-      rpm_key:
-        state: present
-        key: "{{ beegfs_repo_key }}"
-      when: ansible_os_family == "RedHat"
-  become: true
 
-- name: Refresh apt repos
-  apt:
-    name: base-files
-    state: present
-    update_cache: true
-  become: true
-  when: ansible_os_family == "Debian"
+  - name: Ensure the BeeGFS package repo is defined
+    get_url:
+      url: "{{ beegfs_repo_url }}"
+      dest: "{{ beegfs_repo_file }}"
+    become: true
+
+  - name: Load package repo key
+    block:
+      - name: add apt key for debian family machines
+        apt_key:
+          state: present
+          url: "{{ beegfs_repo_key }}"
+        when: ansible_os_family == "Debian"
+      - name: add rpm key for redhat family machines
+        rpm_key:
+          state: present
+          key: "{{ beegfs_repo_key }}"
+        when: ansible_os_family == "RedHat"
+    become: true
+
+  - name: Refresh apt repos
+    apt:
+      name: base-files
+      state: present
+      update_cache: true
+    become: true
+    when: ansible_os_family == "Debian"
+
+  when: beegfs_add_repos | bool
 
 # Task flow inspired by MichaelRigart.interfaces role - thanks markgoddard
 # Some systems do not support /etc/modules-load.d, in which case we fall back
