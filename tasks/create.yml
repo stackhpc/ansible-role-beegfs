@@ -148,6 +148,14 @@
     - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}", state: started }
     - { name: beegfs-oss-tuning, enable: "{{ beegfs_enable.tuning }}" }
 
+- name: Stop and disable default BeeGFS storage services (not used)
+  service:
+    name: beegfs-storage
+    enabled: false
+    state: stopped
+  become: true
+  when: beegfs_enable.oss | bool
+
 - name: Start and enable BeeGFS storage services
   service:
     name: "beegfs-storage@{{ item.port }}"
