@@ -30,7 +30,7 @@
     become: true
     when: ansible_os_family == "Debian"
 
-  when: beegfs_add_repos | default(true) | bool
+  when: beegfs_add_repos
 
 # Task flow inspired by MichaelRigart.interfaces role - thanks markgoddard
 # Some systems do not support /etc/modules-load.d, in which case we fall back
