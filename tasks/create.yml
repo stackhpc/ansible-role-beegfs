@@ -1,5 +1,5 @@
 ---
-- name: Add BeeGFS repos is add_beegfs_repos is true
+- name: Add BeeGFS repos is beegfs_add_repos is true
   block:
 
   - name: Ensure the BeeGFS package repo is defined
@@ -30,7 +30,7 @@
     become: true
     when: ansible_os_family == "Debian"
 
-  when: add_beegfs_repos | default(true) | bool
+  when: beegfs_add_repos | default(true) | bool
 
 # Task flow inspired by MichaelRigart.interfaces role - thanks markgoddard
 # Some systems do not support /etc/modules-load.d, in which case we fall back
