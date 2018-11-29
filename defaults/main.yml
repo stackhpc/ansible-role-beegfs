@@ -47,6 +47,7 @@ beegfs_distro_vars:
       - "libbeegfs-ib"
 
 # BeeGFS repo
+beegfs_add_repos: true
 beegfs_repo_url: "{{ beegfs_distro_vars[ansible_os_family]['beegfs_repo_url'] }}"
 beegfs_repo_key: "{{ beegfs_distro_vars[ansible_os_family]['beegfs_repo_key'] }}"
 beegfs_repo_file: "{{ beegfs_distro_vars[ansible_os_family]['beegfs_repo_file'] }}"
@@ -70,7 +71,7 @@ beegfs_oss_tunable: "{{ beegfs_oss | map(attribute='dev') | map('relpath', '/dev
 # Whether to support multiple ports per OSS:
 # - if this is set to false, make sure that you configure the ports to the same
 #   value when passing beegfs_oss as an input.
-beegfs_oss_multi_port: true 
+beegfs_oss_multi_port: true
 
 # Management options
 beegfs_mgmt_path: "/data/beegfs/beegfs_mgmtd"

@@ -92,7 +92,7 @@
 
 - name: Specify connInterfacesFile
   lineinfile:
-    path: /etc/beegfs/beegfs-storage.conf
+    path: "/etc/beegfs/{{ oss_port }}.d/beegfs-storage.conf"
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
   become: true
