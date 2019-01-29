@@ -21,7 +21,7 @@ beegfs_interfaces: []
 # Distribution-specific parameters
 beegfs_distro_vars:
   RedHat:
-    beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs_rhel7.repo"
+    beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs-rhel7.repo"
     beegfs_repo_key: "https://www.beegfs.io/release/latest-stable/gpg/RPM-GPG-KEY-beegfs"
     beegfs_repo_file: "/etc/yum.repos.d/beegfs-rhel7.repo"
     kernel_dev_pkg: "kernel-devel"
@@ -35,7 +35,7 @@ beegfs_distro_vars:
       - "libbeegfs-ib"
 
   Debian:
-    beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs_deb9.list"
+    beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs-deb9.list"
     beegfs_repo_key: "https://www.beegfs.io/release/latest-stable/gpg/DEB-GPG-KEY-beegfs"
     beegfs_repo_file: "/etc/apt/sources.list.d/beegfs_deb9.list"
     kernel_dev_pkg: "linux-headers"
