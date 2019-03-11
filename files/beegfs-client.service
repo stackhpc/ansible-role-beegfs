@@ -2,3 +2,6 @@
 Type=forking
 Restart=on-failure
 RestartSec=5s
+RemainAfterExit=yes
+ExecStart=/etc/init.d/beegfs-client start
+ExecStop=/etc/init.d/beegfs-client stop
