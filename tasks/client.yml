@@ -97,10 +97,10 @@
   when: client_mgmt_host == inventory_hostname
   become: true
 
-- name: Copy beegfs-client.service to /etc/systemd/system/ to override some default config
+- name: Copy beegfs-client.service.d/ to /etc/systemd/system/
   copy:
-    src: beegfs-client.service
-    dest: /etc/systemd/system/beegfs-client.service
+    src: beegfs-client.service.d/
+    dest: /etc/systemd/system/beegfs-client.service.d/
   notify: Restart BeeGFS client service
   become: true
 ...
