@@ -1,0 +1,4 @@
+[Service]
+Type=forking
+Restart=on-failure
+RestartSec=5s
