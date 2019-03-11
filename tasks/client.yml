@@ -96,4 +96,28 @@
     force: true
   when: client_mgmt_host == inventory_hostname
   become: true
+
+- name: Copy remote beegfs-client.service to /etc/systemd/system/
+  copy:
+    remote_src: true
+    src: /usr/lib/systemd/system/beegfs-client.service
+    dest: /etc/systemd/system/beegfs-client.service
+  notify: Restart BeeGFS client service
+  become: true
+
+- name: Edit /etc/systemd/system/beegfs-client.service
+  ini_file:
+    path: /etc/systemd/system/beegfs-client.service
+    section: Service
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - option: Type
+      value: forking
+    - option: Restart
+      value: on-failure
+    - option: RestartSec
+      value: 5s
+  notify: Restart BeeGFS client service
+  become: true
 ...
