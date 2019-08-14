@@ -39,7 +39,7 @@
 - name: Rebuild the BeeGFS client kernel module
   command: /etc/init.d/beegfs-client rebuild
   args:
-    creates: "/lib/modules/{{ ansible_kernel }}/updates/fs/beegfs_autobuild/beegfs.ko"
+    creates: "{{ beegfs_kernel_module }}"
   become: true
   notify: Restart BeeGFS client service
 

@@ -99,6 +99,14 @@
       with_items:
         - { name: "{{ beegfs_meta_path }}", enable: "{{ beegfs_enable.meta }}" }
         - { name: "{{ beegfs_mgmt_path }}", enable: "{{ beegfs_enable.mgmt }}" }
+    - name: Unload kernel module
+      modprobe:
+        name: beegfs
+        state: absent
+    - name: Delete kernel module
+      file:
+        path: "{{ beegfs_kernel_module }}"
+        state: absent
   when: (beegfs_force_format | bool) or
         (beegfs_package_action | lower == "latest")
   become: true

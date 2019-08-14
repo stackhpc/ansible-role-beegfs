@@ -93,4 +93,7 @@ beegfs_client: []
 # BeeGFS? This is useful for upgrading.
 beegfs_update: false
 beegfs_package_action: "{{ 'latest' if beegfs_update | bool else 'present' }}"
+
+# Path to the kernel module
+beegfs_kernel_module: "/lib/modules/{{ ansible_kernel }}/updates/fs/beegfs_autobuild/beegfs.ko"
 ...

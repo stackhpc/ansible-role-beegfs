@@ -2,7 +2,7 @@
 - name: Ensure RDMA packages are installed
   package:
     name: "{{ beegfs_distro_vars[ansible_os_family]['rdma_dev_pkgs'] }}"
-    state: present
+    state: "{{ beegfs_package_action }}"
   become: true
 
 - name: Ensure RDMA kernel modules are loaded
