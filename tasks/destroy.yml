@@ -24,7 +24,9 @@
     enabled: false
     state: stopped
   become: true
-  when: beegfs_enable.oss | bool
+  when:
+    - beegfs_enable.oss | bool
+    - item.dev is defined
   with_items: "{{ beegfs_oss }}"
 
 - name: Stop and disable BeeGFS storage services

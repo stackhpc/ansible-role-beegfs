@@ -117,13 +117,16 @@
 
 - include: oss.yml
   vars:
-    oss_replace: "{{ '-r' if (oss_item == beegfs_oss|first or beegfs_oss_multi_port) else '' }}"
-    oss_path: "{{ oss_item.path | default(beegfs_oss_path_prefix + oss_item.dev) }}"
+    oss_dev: "{{ oss_item.dev | default('') }}"
+    oss_dev_is_defined: "{{ oss_item.dev is defined }}"
+    oss_path: "{{ oss_item.path | default(beegfs_oss_path_prefix + oss_dev) }}"
     oss_port: "{{ oss_item.port }}"
-    oss_dev: "{{ oss_item.dev | default(omit) }}"
+    oss_replace: "{{ '-r' if (oss_item == beegfs_oss|first or beegfs_oss_multi_port) else '' }}"
   with_items: "{{ beegfs_oss }}"
   loop_control:
     loop_var: oss_item
+  failed_when: >
+    (oss_item.dev is not defined and oss_item.path is not defined)
   when: beegfs_enable.oss | default(false) | bool
 
 - include: tuning.yml
