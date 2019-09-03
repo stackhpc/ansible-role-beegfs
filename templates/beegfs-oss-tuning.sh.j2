@@ -5,6 +5,7 @@ set -x
 
 echo always > /sys/kernel/mm/transparent_hugepage/enabled
 echo always > /sys/kernel/mm/transparent_hugepage/defrag
+{% if beegfs_oss_tunable | length > 0 %}
 for dev in {{ beegfs_oss_tunable | join(' ') }}
 do
   if [ -d /sys/block/${dev} ]; then
@@ -14,3 +15,4 @@ do
     echo 256 > /sys/block/${dev}/queue/max_sectors_kb
   fi
 done
+{% endif %}

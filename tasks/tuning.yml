@@ -29,5 +29,4 @@
         src: beegfs-oss-tuning.service
         dest: /etc/systemd/system/
       notify: Restart BeeGFS tuning service
-  when: beegfs_oss_tunable | default([]) | length > 0
   become: true
