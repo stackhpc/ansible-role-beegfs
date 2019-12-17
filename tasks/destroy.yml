@@ -62,7 +62,7 @@
 
 - name: Unmount BeeGFS oss paths if mounted
   vars:
-    oss_path: "{{ beegfs_oss_path_prefix + item.dev }}"
+    oss_path: "{{ item.path | default(beegfs_oss_path_prefix + item.dev) }}"
   mount:
     path: "{{ oss_path }}"
     state: unmounted
