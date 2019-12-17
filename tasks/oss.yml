@@ -28,6 +28,14 @@
 
 - name: Prepare storage devices
   block:
+    - name: Stat the OSS device
+      stat:
+        path: "{{ oss_dev }}"
+      register: oss_dev_stat
+    - name: Fail if OSS device does not exist
+      fail:
+        msg: OSS device {{ oss_dev }} does not exist
+      when: not oss_dev_stat.exists
     - name: Unmount storage device if beegfs_force_format is true
       mount:
         src: "{{ oss_dev }}"
@@ -36,12 +44,14 @@
       when: beegfs_force_format | bool
       notify: Restart BeeGFS storage service
     - name: Attempt to format if the device is not mounted or if beegfs_force_format is true
+      vars:
+        oss_dev_real: "{{ oss_dev_stat.lnk_source if oss_dev_stat.islnk else oss_dev_stat.path }}"
       filesystem:
         dev: "{{ oss_dev }}"
         fstype: "{{ beegfs_fstype }}"
         force: "{{ beegfs_force_format | bool }}"
         opts: "{{ beegfs_filesystem_opts }}"
-      when: (oss_dev not in mounted_devs) or (beegfs_force_format | bool)
+      when: (oss_dev_real not in mounted_devs) or (beegfs_force_format | bool)
       notify: Restart BeeGFS storage service
     - name: Ensure the mount point exists
       file:
