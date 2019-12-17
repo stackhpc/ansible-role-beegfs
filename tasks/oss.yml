@@ -38,7 +38,6 @@
       when: not oss_dev_stat.exists
     - name: Unmount storage device if beegfs_force_format is true
       mount:
-        src: "{{ oss_dev }}"
         path: "{{ oss_path }}"
         state: unmounted
       when: beegfs_force_format | bool
