@@ -12,7 +12,18 @@ do
     echo mq-deadline > /sys/block/${dev}/queue/scheduler
     echo 2048 > /sys/block/${dev}/queue/nr_requests
     echo 4096 > /sys/block/${dev}/queue/read_ahead_kb
-    echo 256 > /sys/block/${dev}/queue/max_sectors_kb
+    echo {{ dev.max_sectors_kb | default("256") }} > /sys/block/${dev}/queue/max_sectors_kb
   fi
 done
+{% endif %}
+
+
+{% if beegfs_meta_dev and beegfs_meta_tunings %}
+dev={{beegfs_meta_dev | relpath('/dev/') }}
+ if [ -d /sys/block/${dev} ]; then
+    echo mq-deadline > /sys/block/${dev}/queue/scheduler
+    echo 128 > /sys/block/${dev}/queue/nr_requests
+    echo 128 > /sys/block/${dev}/queue/read_ahead_kb
+    echo 256 > /sys/block/${dev}/queue/max_sectors_kb
+  fi
 {% endif %}

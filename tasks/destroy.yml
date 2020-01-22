@@ -84,6 +84,16 @@
     - beegfs_enable.oss | bool
     - item.dev is defined
 
+- name: Ensure meta device is not currently mounted
+  become: true
+  mount:
+    path: "{{ beegfs_meta_path }}"
+    state: unmounted
+  when:
+    - beegfs_enable.meta | default(false) | bool
+    - beegfs_meta_dev is defined
+    - beegfs_meta_dev != None
+
 - name: Remove other beegfs folders
   file:
     path: "{{ item.name }}"

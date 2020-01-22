@@ -91,6 +91,16 @@
         state: stopped
       with_items: "{{ beegfs_oss }}"
       when: service_name in ansible_facts.services
+
+    - name: Ensure meta device is not currently mounted
+      mount:
+        path: "{{ beegfs_meta_path }}"
+        state: unmounted
+      when:
+        - beegfs_enable.meta | default(false) | bool
+        - beegfs_meta_dev is defined
+        - beegfs_meta_dev != None
+
     - name: Remove other beegfs folders
       file:
         path: "{{ item.name }}"

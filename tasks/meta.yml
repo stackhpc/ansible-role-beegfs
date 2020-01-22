@@ -15,17 +15,13 @@
 
 - name: Prepare metadata block storage
   block:
-    - name: Ensure storage device is not currently mounted
-      mount:
-        path: "{{ beegfs_meta_path }}"
-        state: unmounted
-      notify: Restart BeeGFS meta service
     - name: Format filesystem
       vars:
         meta_fstype: "{{ beegfs_meta_fstype | default(beegfs_fstype) }}"
       filesystem:
         dev: "{{ beegfs_meta_dev }}"
         fstype: "{{ meta_fstype }}"
+        opts: "{{ beegfs_meta_filesystem_opts }}"
         force: "{{ beegfs_force_format }}"
       notify: Restart BeeGFS meta service
     - name: Mount filesystem
@@ -35,6 +31,7 @@
         src: "{{ beegfs_meta_dev }}"
         path: "{{ beegfs_meta_path }}"
         fstype: "{{ meta_fstype }}"
+        opts: "{{ beegfs_meta_mount_opts }}"
         state: mounted
       notify: Restart BeeGFS meta service
   become: true
@@ -54,6 +51,22 @@
     path: /etc/beegfs/beegfs-meta.conf
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile           = /etc/beegfs/connInterfacesFile"
+  become: true
+  notify: Restart BeeGFS meta service
+
+- name: Modify tuneTargetChooser settings
+  lineinfile:
+    path: /etc/beegfs/beegfs-meta.conf
+    regexp: "^tuneTargetChooser"
+    line: "tuneTargetChooser            = {{ beegfs_meta_tuneTargetChooser }}"
+  become: true
+  notify: Restart BeeGFS meta service
+
+- name: Modify tuneNumWorkers settings
+  lineinfile:
+    path: /etc/beegfs/beegfs-meta.conf
+    regexp: "^tuneNumWorkers"
+    line: "tuneNumWorkers               = {{ beegfs_meta_tuneNumWorkers }}"
   become: true
   notify: Restart BeeGFS meta service
 ...

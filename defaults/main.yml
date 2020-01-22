@@ -81,6 +81,8 @@ beegfs_mgmt_host:  # Example: "{{ groups['cluster_beegfs_mgmt'] | first }}"
 beegfs_meta_path: "/data/beegfs/beegfs_meta"
 beegfs_meta_dev:  # /dev/sdb
 beegfs_meta_fstype:  # Example: "ext4"
+beegfs_meta_filesystem_opts: "-i 2048 -I 512 -J size=400 -O dir_index,filetype"
+beegfs_meta_mount_opts: "noatime,nodiratime,nobarrier,auto"
 
 # Client mount configs
 beegfs_client: []
@@ -96,4 +98,10 @@ beegfs_package_action: "{{ 'latest' if beegfs_update | bool else 'present' }}"
 
 # Path to the kernel module
 beegfs_kernel_module: "/lib/modules/{{ ansible_kernel }}/updates/fs/beegfs_autobuild/beegfs.ko"
+
+# tuneNumWorkers settings for meta server
+beegfs_meta_tuneNumWorkers: 0
+
+# tuneNumWorkers settings for meta server
+beegfs_meta_tuneTargetChooser: randomized
 ...
