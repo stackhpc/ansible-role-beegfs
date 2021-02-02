@@ -24,7 +24,7 @@ beegfs_distro_vars:
     beegfs_repo_url: "https://www.beegfs.io/release/latest-stable/dists/beegfs-rhel7.repo"
     beegfs_repo_key: "https://www.beegfs.io/release/latest-stable/gpg/RPM-GPG-KEY-beegfs"
     beegfs_repo_file: "/etc/yum.repos.d/beegfs-rhel7.repo"
-    kernel_dev_pkg: "kernel-devel"
+    kernel_dev_pkg: "kernel-uek-devel"
     rdma_dev_pkgs:
       - "librdmacm"
       - "libibmad"
@@ -57,7 +57,8 @@ beegfs_rdma: true
 
 # Default filesystem options
 beegfs_filesystem_opts: "-K -d su=128k,sw=8 -l version=2,su=128k -isize=512"
-beegfs_mount_opts: "noatime,nodiratime,logbufs=8,logbsize=256k,largeio,inode64,swalloc,allocsize=131072k,nobarrier"
+#beegfs_mount_opts: "noatime,nodiratime,logbufs=8,logbsize=256k,largeio,inode64,swalloc,allocsize=131072k,nobarrier"
+beegfs_mount_opts: "noatime,nodiratime,logbufs=8,logbsize=256k,largeio,inode64,swalloc,allocsize=131072k"
 beegfs_force_format: false
 beegfs_fstype: "xfs"
 
