@@ -35,7 +35,7 @@
     - name: Fail if OSS device does not exist
       fail:
         msg: OSS device {{ oss_dev }} does not exist
-      when: not oss_dev_stat.exists
+      when: not oss_dev_stat.stat.exists
     - name: Unmount storage device if beegfs_force_format is true
       mount:
         path: "{{ oss_path }}"
@@ -44,7 +44,7 @@
       notify: Restart BeeGFS storage service
     - name: Attempt to format if the device is not mounted or if beegfs_force_format is true
       vars:
-        oss_dev_real: "{{ oss_dev_stat.lnk_source if oss_dev_stat.islnk else oss_dev_stat.path }}"
+        oss_dev_real: "{{ oss_dev_stat.stat.lnk_source if oss_dev_stat.stat.islnk else oss_dev_stat.stat.path }}"
       filesystem:
         dev: "{{ oss_dev }}"
         fstype: "{{ beegfs_fstype }}"
