@@ -17,7 +17,7 @@
     line: "{{ item.line }}"
   when: item.condition
   with_items:
-    - { line: "buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1", condition: "{{ beegfs_rdma | bool }}" }
+    - { line: "buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1 OFED_INCLUDE_PATH=/usr/src/ofa_kernel/default/include/", condition: "{{ beegfs_rdma | bool }}" }
     - { line: "buildArgs=-j8", condition: "{{ not beegfs_rdma | bool }}" }
   notify: Restart BeeGFS client service
   become: true
