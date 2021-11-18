@@ -40,7 +40,7 @@
     - beegfs_meta_dev != None
 
 - name: Run metadata service setup script
-  command: "/opt/beegfs/sbin/beegfs-setup-meta -p {{ beegfs_meta_path }} -m {{ beegfs_mgmt_host }} -f"
+  command: "/opt/beegfs/sbin/beegfs-setup-meta -p {{ beegfs_meta_path }} -m {{ beegfs_mgmt_host }} {{ '-s ' + (beegfs_node_num_id | string) if beegfs_node_num_id }} -f"
   args:
     creates: "{{ beegfs_meta_path }}/originalNodeID"
   become: true

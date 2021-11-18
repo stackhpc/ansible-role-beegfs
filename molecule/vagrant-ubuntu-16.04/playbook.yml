@@ -5,7 +5,7 @@
     - role: ansible-role-beegfs
       beegfs_enable:
         mgmt: "{{ inventory_hostname in groups['cluster_beegfs_mgmt'] }}"
-        admon: false
+        mon: false
         meta: "{{ inventory_hostname in groups['cluster_beegfs_mds'] }}"
         oss: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
         tuning: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"

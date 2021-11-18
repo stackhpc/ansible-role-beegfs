@@ -1,0 +1,1 @@
+beegfs_client_config_file: "beegfs-client{{ (beegfs_client_scope_config | bool) | ternary('-' + beegfs_mgmt_host,'') }}.conf"

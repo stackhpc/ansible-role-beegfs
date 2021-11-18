@@ -1,0 +1,43 @@
+---
+- name: Install packages for BeeGFS monitoring
+  package:
+    name: beegfs-mon
+    state: "{{ beegfs_package_action }}"
+  become: true
+  notify: Restart BeeGFS mon service
+
+- name: Configure beegfs-mon config file to point to the specified management host
+  lineinfile:
+    dest: "/etc/beegfs/beegfs-mon.conf"
+    regexp: "^sysMgmtdHost"
+    line: "sysMgmtdHost = {{ beegfs_mgmt_host }}"
+  become: true
+  notify: Restart BeeGFS mon service
+
+- name: Configure beegfs-mon config file to point dbHostName to influxdb
+  lineinfile:
+    path: /etc/beegfs/beegfs-mon.conf
+    regexp: "^dbHostName"
+    line: "dbHostName                   = {{ beegfs_mon_db_hostname }}"
+  become: true
+  notify: Restart BeeGFS mon service
+  when: beegfs_mon_db_hostname | length > 0
+
+- name: Configure beegfs-mon config file to point dbDatabase in influxdb
+  lineinfile:
+    path: /etc/beegfs/beegfs-mon.conf
+    regexp: "^dbDatabase"
+    line: "dbDatabase                   = {{ beegfs_mon_db_database }}"
+  become: true
+  notify: Restart BeeGFS mon service
+  when: beegfs_mon_db_database | length > 0
+
+- name: Configure beegfs-mon config file to set dbport
+  lineinfile:
+    path: /etc/beegfs/beegfs-mon.conf
+    regexp: "^dbHostPort"
+    line: "dbHostPort                   = {{ beegfs_mon_db_port }}"
+  become: true
+  notify: Restart BeeGFS mon service
+  when: beegfs_mon_db_port != None
+...

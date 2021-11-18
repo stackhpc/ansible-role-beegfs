@@ -4,12 +4,15 @@ beegfs_enable:
   mgmt: false
   meta: false
   oss: false
-  admon: false
+  mon: false
   client: false
   tuning: false
 
 # Can be present or absent
 beegfs_state: present
+
+# with what to multiply the nodeid to get the target id in case a node is explictly set
+beegfs_target_id_multiplier: 100
 
 # Kernel modules to ensure are loaded prior to BeeGFS deploy/startup
 beegfs_kmod_preload: []
@@ -57,7 +60,7 @@ beegfs_rdma: true
 
 # Default filesystem options
 beegfs_filesystem_opts: "-K -d su=128k,sw=8 -l version=2,su=128k -isize=512"
-beegfs_mount_opts: "noatime,nodiratime,logbufs=8,logbsize=256k,largeio,inode64,swalloc,allocsize=131072k,nobarrier"
+beegfs_mount_opts: "uqnoenforce,gqnoenforce,noatime,nodiratime,logbufs=8,logbsize=256k,largeio,inode64,swalloc,allocsize=131072k"
 beegfs_force_format: false
 beegfs_fstype: "xfs"
 
@@ -104,4 +107,19 @@ beegfs_meta_tuneNumWorkers: 0
 
 # tuneNumWorkers settings for meta server
 beegfs_meta_tuneTargetChooser: randomized
+
+beegfs_enable_quota: false
+beegfs_client_scope_config: true
+
+beegfs_client_ofed_include_path:
+
+beegfs_node_num_id:
+
+beegfs_mon_db_hostname:
+
+beegfs_mon_db_database:
+
+beegfs_mon_db_port:
+
+beegfs_oss_max_sectors_kb: 256
 ...

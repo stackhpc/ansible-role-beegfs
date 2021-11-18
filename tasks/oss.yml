@@ -64,6 +64,7 @@
         state: mounted
         opts: "{{ beegfs_mount_opts }}"
       notify: Restart BeeGFS storage service
+
   become: true
   when: oss_dev_is_defined
 
@@ -73,7 +74,8 @@
     -p {{ oss_path }} {{ oss_replace }} \
     -m {{ beegfs_mgmt_host }} \
     -c /etc/beegfs/{{ oss_port }}.d/beegfs-storage.conf \
-    -S {{ inventory_hostname }}-{{ oss_port }} \
+    {{ '-s ' + (beegfs_node_num_id | string) if beegfs_node_num_id }} \
+    {{ '-i ' + oss_num_id if oss_num_id }}
   args:
     creates: "{{ oss_path }}/originalNodeID"
   become: true

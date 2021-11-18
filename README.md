@@ -44,11 +44,11 @@ And a corresponding playbook as this (`beegfs.yml`):
       - cluster_beegfs_mgmt
       - cluster_beegfs_mds
       - cluster_beegfs_oss
-      - cluster_beegfs_client 
+      - cluster_beegfs_client
       roles:
       - role: stackhpc.beegfs
         beegfs_enable:
-          admon: false
+          mon: false
           mgmt: "{{ inventory_hostname in groups['cluster_beegfs_mgmt'] }}"
           meta: "{{ inventory_hostname in groups['cluster_beegfs_mds'] }}"
           oss: "{{ inventory_hostname in groups['cluster_beegfs_oss'] }}"
@@ -89,7 +89,7 @@ under `beegfs_enable` to `true` or `false` where:
 - `mds`: Metadata storage server nodes
 - `oss`: Object storage server nodes
 - `client`: Clients of the BeeGFS storage cluster
-- `admon`: NOT IMPLEMENTED
+- `mon`: Monitoring service
 
 This role is dependent upon each node's hostname resolving to the IP address
 used to reach the management host, as configured via `beegfs_host_mgmt`. In

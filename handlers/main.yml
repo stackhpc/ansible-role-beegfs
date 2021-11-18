@@ -24,13 +24,13 @@
   with_items: "{{ beegfs_oss }}"
   when: beegfs_enable.oss | bool
 
-- name: Restart BeeGFS admon service
+- name: Restart BeeGFS mon service
   systemd:
-    name: beegfs-admon
+    name: beegfs-mon
     daemon-reload: true
     state: restarted
   become: true
-  when: beegfs_enable.admon | bool
+  when: beegfs_enable.mon | bool
 
 - name: Restart BeeGFS client service
   systemd:

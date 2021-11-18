@@ -12,7 +12,9 @@ do
     echo mq-deadline > /sys/block/${dev}/queue/scheduler
     echo 2048 > /sys/block/${dev}/queue/nr_requests
     echo 4096 > /sys/block/${dev}/queue/read_ahead_kb
-    echo {{ dev.max_sectors_kb | default("256") }} > /sys/block/${dev}/queue/max_sectors_kb
+    echo {{ beegfs_oss_max_sectors_kb }} > /sys/block/${dev}/queue/max_sectors_kb
+    # http://smalldatum.blogspot.com/2018/01/xfs-nobarrier-and-413-linux-kernel.html
+    echo "write through" > /sys/block/${dev}/queue/write_cache
   fi
 done
 {% endif %}

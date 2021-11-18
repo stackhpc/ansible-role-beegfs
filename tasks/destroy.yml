@@ -48,7 +48,7 @@
   with_items:
     - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}" }
     - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}" }
-    - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}" }
+    - { name: beegfs-mon, enable: "{{ beegfs_enable.mon }}" }
     - { name: beegfs-oss-tuning, enable: "{{ beegfs_enable.tuning }}" }
 
 - name: Clear storeStorageDirectory
@@ -56,6 +56,15 @@
     path: "/etc/beegfs/{{ item.port }}.d/beegfs-storage.conf"
     regexp: "^storeStorageDirectory"
     line: "storeStorageDirectory ="
+  with_items: "{{ beegfs_oss }}"
+  become: true
+  when: beegfs_enable.oss | bool
+
+- name: Clear storeFsUUID
+  lineinfile:
+    path: "/etc/beegfs/{{ item.port }}.d/beegfs-storage.conf"
+    regexp: "^storeFsUUID"
+    line: "storeFsUUID ="
   with_items: "{{ beegfs_oss }}"
   become: true
   when: beegfs_enable.oss | bool

@@ -82,7 +82,7 @@
         - { name: "beegfs-helperd.service", enable: "{{ beegfs_enable.client }}" }
         - { name: "beegfs-mgmtd.service", enable: "{{ beegfs_enable.mgmt }}" }
         - { name: "beegfs-meta.service", enable: "{{ beegfs_enable.meta }}" }
-        - { name: "beegfs-admon.service", enable: "{{ beegfs_enable.admon }}" }
+        - { name: "beegfs-mon.service", enable: "{{ beegfs_enable.mon }}" }
     - name: Stop BeeGFS storage services
       vars:
         service_name: "beegfs-storage@{{ item.port }}.service"
@@ -117,42 +117,53 @@
       file:
         path: "{{ beegfs_kernel_module }}"
         state: absent
+
   when: (beegfs_force_format | bool) or
         (beegfs_package_action | lower == "latest")
   become: true
 
-- include: rdma.yml
+
+- include_tasks: rdma.yml
   when: beegfs_rdma | bool
 
-- include: mgmt.yml
+- include_tasks: mgmt.yml
   when: beegfs_enable.mgmt | default(false) | bool
 
-- include: admon.yml
-  when: beegfs_enable.admon | default(false) | bool
+- include_tasks: mon.yml
+  when: beegfs_enable.mon | default(false) | bool
 
-- include: meta.yml
+- include_tasks: meta.yml
   when: beegfs_enable.meta | default(false) | bool
 
-- include: oss.yml
+- include_tasks: oss.yml
   vars:
     oss_dev: "{{ oss_item.dev | default('') }}"
     oss_dev_is_defined: "{{ oss_item.dev is defined }}"
     oss_path: "{{ oss_item.path | default(beegfs_oss_path_prefix + oss_dev) }}"
     oss_port: "{{ oss_item.port }}"
     oss_replace: "{{ '-r' if (oss_item == beegfs_oss|first or beegfs_oss_multi_port) else '' }}"
-  with_items: "{{ beegfs_oss }}"
+    oss_num_id: "{{ (beegfs_node_num_id | int) * (beegfs_target_id_multiplier | int) + (oss_index + 1) if beegfs_node_num_id else None }}"
+  loop: "{{ beegfs_oss }}"
   loop_control:
     loop_var: oss_item
-  failed_when: >
-    (oss_item.dev is not defined and oss_item.path is not defined)
+    index_var: oss_index
+  #failed_when: >
+  #  (oss_item.dev is not defined and oss_item.path is not defined)
   when: beegfs_enable.oss | default(false) | bool
 
-- include: tuning.yml
+- include_tasks: tuning.yml
   when: beegfs_enable.tuning | default(false) | bool
+
+- name: Create connInterfacesFile
+  template:
+    src: connInterfacesFile.j2
+    dest: /etc/beegfs/connInterfacesFile
+  become: true
+
 
 - meta: flush_handlers
 
-- include: client.yml
+- include_tasks: client.yml
   vars:
     client_mgmt_host: "{{ client_item.mgmt_host | default(beegfs_mgmt_host) }}"
     client_path: "{{ client_item.path }}"
@@ -162,11 +173,6 @@
     loop_var: client_item
   when: beegfs_enable.client | default(false) | bool
 
-- name: Create connInterfacesFile
-  template:
-    src: connInterfacesFile.j2
-    dest: /etc/beegfs/connInterfacesFile
-  become: true
 
 - name: Start and enable BeeGFS server services
   service:
@@ -178,7 +184,7 @@
   with_items:
     - { name: beegfs-mgmtd, enable: "{{ beegfs_enable.mgmt }}", state: started }
     - { name: beegfs-meta, enable: "{{ beegfs_enable.meta }}", state: started }
-    - { name: beegfs-admon, enable: "{{ beegfs_enable.admon }}", state: started }
+    - { name: beegfs-mon, enable: "{{ beegfs_enable.mon }}", state: started }
     - { name: beegfs-oss-tuning, enable: "{{ beegfs_enable.tuning }}" }
 
 - name: Start and enable BeeGFS storage services

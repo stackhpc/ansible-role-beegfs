@@ -1,12 +1,12 @@
 ---
 - name: Install packages for BeeGFS client
   package:
-    name: "{{ item }}"
-    state: "{{ beegfs_package_action }}"
-  with_items:
+    name:
+    - elfutils-libelf-devel
     - beegfs-client
     - beegfs-helperd
     - beegfs-utils
+    state: "present"
   become: true
   notify: Restart BeeGFS client service
 
@@ -16,18 +16,18 @@
     regexp: "^buildArgs="
     line: "{{ item.line }}"
   when: item.condition
-  with_items:
-    - { line: "buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1", condition: "{{ beegfs_rdma | bool }}" }
-    - { line: "buildArgs=-j8", condition: "{{ not beegfs_rdma | bool }}" }
-  notify: Restart BeeGFS client service
   become: true
+  with_items:
+    - { line: "buildArgs=-j8 OFED_INCLUDE_PATH={{ beegfs_client_ofed_include_path }}", condition: "{{ beegfs_client_ofed_include_path }}" }
+    - { line: "buildArgs=-j8", condition: "{{ not beegfs_client_ofed_include_path }}" }
+  notify: Restart BeeGFS client service
 
 - name: Ensure kernel development headers are present
   package:
-    name: "{{ beegfs_distro_vars[ansible_os_family]['kernel_dev_pkg'] }}-{{ ansible_kernel }}"
+    name: "{{ beegfs_distro_vars[ansible_os_family]['kernel_dev_pkg'] }}"
     state: present
-  notify: Restart BeeGFS client service
   become: true
+  notify: Restart BeeGFS client service
 
 - name: Ensure gcc is installed
   package:
@@ -36,15 +36,9 @@
   become: true
   notify: Restart BeeGFS client service
 
-- name: Rebuild the BeeGFS client kernel module
-  command: /etc/init.d/beegfs-client rebuild
-  args:
-    creates: "{{ beegfs_kernel_module }}"
-  become: true
-  notify: Restart BeeGFS client service
-
 - name: Ensure the BeeGFS mount point exists
   file:
+    mode: 0755
     path: "{{ client_path }}"
     state: directory
   become: true
@@ -60,42 +54,39 @@
 
 - name: Make of copy of BeeGFS client config file if it doesn't exist
   copy:
+    mode: 0644
     remote_src: true
     src: /etc/beegfs/beegfs-client.conf
-    dest: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
+    dest: "/etc/beegfs/{{ beegfs_client_config_file }}"
     force: false
   become: true
+  when: beegfs_client_scope_config | bool
   notify: Restart BeeGFS client service
 
 - name: Configure beegfs-client config file to point to the specified management host
   lineinfile:
-    dest: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
+    dest: "/etc/beegfs/{{ beegfs_client_config_file }}"
     regexp: "^sysMgmtdHost"
     line: "sysMgmtdHost = {{ client_mgmt_host }}"
   become: true
+  notify: Restart BeeGFS client service
 
 - name: Configure beegfs-client config file to use the specified port
   lineinfile:
-    dest: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
+    dest: "/etc/beegfs/{{ beegfs_client_config_file }}"
     regexp: "^connClientPortUDP"
     line: "connClientPortUDP = {{ client_port }}"
   become: true
+  notify: Restart BeeGFS client service
 
 - name: Configure beegfs-client config file to ensure the specifed connection interface is used
   lineinfile:
-    dest: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
+    dest: "/etc/beegfs/{{ beegfs_client_config_file }}"
     regexp: "^connInterfacesFile"
     line: "connInterfacesFile = /etc/beegfs/connInterfacesFile"
   become: true
+  notify: Restart BeeGFS client service
 
-- name: Copy default beegfs-client config file to enable beegfs_ctl in the management host
-  copy:
-    remote_src: true
-    dest: /etc/beegfs/beegfs-client.conf
-    src: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
-    force: true
-  when: client_mgmt_host == inventory_hostname
-  become: true
 
 - name: Copy beegfs-client.service.d/ to /etc/systemd/system/
   copy:
@@ -103,4 +94,37 @@
     dest: /etc/systemd/system/beegfs-client.service.d/
   notify: Restart BeeGFS client service
   become: true
-...
+
+
+- name: Configure beegfs-client config file to enable quota support
+  lineinfile:
+    dest: "/etc/beegfs/{{ beegfs_client_config_file }}"
+    regexp: "^quotaEnabled"
+    line: "quotaEnabled = {{ (beegfs_enable_quota | bool) | ternary('true', 'false') }}"
+  become: true
+  notify: Restart BeeGFS client service
+
+
+- name: Configure beegfs-client config file to enable/disable RDMA
+  lineinfile:
+    dest: "/etc/beegfs/{{ beegfs_client_config_file }}"
+    regexp: "^connUseRDMA"
+    line: "connUseRDMA = {{ (beegfs_rdma | bool) | ternary('true', 'false') }}"
+  become: true
+  notify: Restart BeeGFS client service
+
+- name: Rebuild the BeeGFS client kernel module
+  command: /etc/init.d/beegfs-client rebuild
+  args:
+    creates: "{{ beegfs_kernel_module }}"
+  become: true
+  notify: Restart BeeGFS client service
+
+- name: Copy default beegfs-client config file to enable beegfs_ctl in the management host
+  copy:
+    remote_src: true
+    dest: /etc/beegfs/beegfs-client.conf
+    src: "/etc/beegfs/beegfs-client-{{ client_mgmt_host }}.conf"
+    force: true
+  when: client_mgmt_host == inventory_hostname and not (beegfs_client_scope_config | bool)
+  become: true
