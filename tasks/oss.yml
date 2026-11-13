@@ -80,7 +80,7 @@
     -c /etc/beegfs/{{ oss_port }}.d/beegfs-storage.conf \
     -S {{ inventory_hostname }}-{{ oss_port }} \
   args:
-    creates: "{{ oss_path }}/originalNodeID"
+    creates: "{{ oss_path }}/format.conf"  # written by the setup script
   become: true
   notify: Restart BeeGFS storage service
 

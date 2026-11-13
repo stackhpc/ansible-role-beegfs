@@ -118,3 +118,15 @@ kmod RPM is left at `/var/tmp/kmod-beegfs.rpm` for converge.
   in place, idempotent).
 - mgmtd logs "no license loaded … Feature verification failed" for some
   requests; registration still works. Watch whether it matters.
+
+### Run 5 (43502765692, bf2d383) — converge ✅, idempotence ❌
+
+- ✅ Converge passes: all services up, client "BeeGFS mount ready".
+- ❌ Idempotence: meta and storage setup scripts ran again. Their `creates:`
+  marker `originalNodeID` isn't written on 8.x (T09 assumed it was from a
+  string in the binary — wrong). With `-f`, re-running re-initialises the
+  target; storage then fails ("Storage path list and storage UUID list have
+  different sizes"). On a real cluster this risks orphaned data.
+- Fix: `creates: <path>/format.conf`, which both 7.4.6 and 8.4 setup
+  scripts always write. `mgmt.yml` (7.x only) still uses `originalNodeID` →
+  verify in `vagrant-el8` (phase 2).

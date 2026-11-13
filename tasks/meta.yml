@@ -45,7 +45,7 @@
 - name: Run metadata service setup script
   command: "/opt/beegfs/sbin/beegfs-setup-meta -p {{ beegfs_meta_path }} -m {{ beegfs_mgmt_host }} -f"
   args:
-    creates: "{{ beegfs_meta_path }}/originalNodeID"
+    creates: "{{ beegfs_meta_path }}/format.conf"  # written by the setup script
   become: true
   notify: Restart BeeGFS meta service
 
