@@ -1,9 +1,0 @@
----
-- name: Prepare
-  hosts: all
-  gather_facts: false
-  tasks:
-    - name: Install python for Ansible
-      raw: test -e /usr/bin/python3 || dnf -y install python3
-      become: true
-      changed_when: false

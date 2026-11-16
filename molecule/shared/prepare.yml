@@ -22,11 +22,28 @@
       setup:
         gather_subset: [network]
 
-    - name: Resolve the hostname to the VM's address like on a real cluster, not 127.0.1.1 (Vagrant)
+    - name: Drop Vagrant's 127.0.1.1 hostname mapping
       lineinfile:
         path: /etc/hosts
         regexp: '^127\.0\.1\.1\s'
-        line: "{{ ansible_default_ipv4.address }} {{ inventory_hostname }}"
+        state: absent
+
+    - name: Resolve every node's name to its address, like DNS on a real cluster
+      lineinfile:
+        path: /etc/hosts
+        regexp: '\s{{ item }}$'
+        line: "{{ hostvars[item].ansible_default_ipv4.address }} {{ item }}"
+      loop: "{{ groups['all'] }}"
+
+    - name: Probe services
+      service_facts:
+
+    - name: Stop firewalld; the role doesn't manage firewalls
+      systemd:
+        name: firewalld
+        state: stopped
+        enabled: false
+      when: "'firewalld.service' in ansible_facts.services"
 
 - name: Build kmod-beegfs
   import_playbook: build-kmod.yml

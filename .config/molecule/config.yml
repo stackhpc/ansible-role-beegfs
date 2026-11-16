@@ -1,0 +1,20 @@
+---
+# Shared by every scenario; each molecule/<scenario>/molecule.yml only adds
+# its platforms and beegfs_version. Paths are relative to the scenario dir.
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+  provider:
+    name: libvirt
+provisioner:
+  name: ansible
+  log: true
+  playbooks:
+    prepare: ../shared/prepare.yml
+    converge: ../shared/converge.yml
+verifier:
+  name: testinfra
+  directory: ../tests
+  options:
+    verbose: true

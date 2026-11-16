@@ -1,45 +1,37 @@
 ---
-dependency:
-  name: galaxy
-driver:
-  name: vagrant
-  provider:
-    name: virtualbox
-    options:
-      cpus: 1
-      memory: 1024
-lint:
-  name: yamllint
-  # enabled: false
+# Multi-node cluster, BeeGFS 8.4: mgmt+meta, storage and client on separate
+# hosts (exercises cross-host auth and TLS cert distribution). EL8 has its
+# own scenario (older ansible-core). Shared settings: .config/molecule/config.yml
 platforms:
-  - name: centos7.5-vagrant
-    box: bento/centos-7.5
-    # interfaces:
-    #   - network_name: private_network
-    #     type: dhcp
-    #     auto_config: true
-    provider_raw_config_args:
-      - "customize ['createhd', '--filename', '/tmp/beegfsDisk-centos.vdi', '--size', 50 * 1024]"
-      - "customize ['storageattach', :id,  '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', '/tmp/beegfsDisk-centos.vdi']"
+  - name: node1
+    box: almalinux/9
+    cpus: 1
+    memory: 2048
+    config_options:
+      synced_folder: false
     groups:
       - cluster_beegfs_mgmt
       - cluster_beegfs_mds
+  - name: node2
+    box: almalinux/10
+    cpus: 1
+    memory: 2048
+    provider_raw_config_args:
+      - "storage :file, :size => '20G'"
+    config_options:
+      synced_folder: false
+    groups:
       - cluster_beegfs_oss
+  - name: node3
+    box: almalinux/10
+    cpus: 1
+    memory: 2048
+    config_options:
+      synced_folder: false
+    groups:
       - cluster_beegfs_client
 provisioner:
-  name: ansible
-  log: true
-  lint:
-    name: ansible-lint
-    # enabled: false
-    options:
-      R: true
-scenario:
-  name: vagrant-all
-verifier:
-  name: testinfra
-  directory: ../tests
-  options:
-    verbose: true
-  lint:
-    name: flake8
+  inventory:
+    group_vars:
+      all:
+        beegfs_version: "8.4"

@@ -1,0 +1,22 @@
+---
+# Single node, AlmaLinux 8, BeeGFS 7.4.6. Needs ansible-core < 2.17 (EL8's dnf
+# bindings are Python 3.6 only). Shared settings: .config/molecule/config.yml
+platforms:
+  - name: el8
+    box: almalinux/8
+    cpus: 2
+    memory: 2048
+    provider_raw_config_args:
+      - "storage :file, :size => '20G'"
+    config_options:
+      synced_folder: false
+    groups:
+      - cluster_beegfs_mgmt
+      - cluster_beegfs_mds
+      - cluster_beegfs_oss
+      - cluster_beegfs_client
+provisioner:
+  inventory:
+    group_vars:
+      all:
+        beegfs_version: "7.4.6"

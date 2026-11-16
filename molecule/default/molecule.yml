@@ -1,10 +1,5 @@
 ---
-dependency:
-  name: galaxy
-driver:
-  name: vagrant
-  provider:
-    name: libvirt
+# Single node, AlmaLinux 9, BeeGFS 8.4. Shared settings: .config/molecule/config.yml
 platforms:
   - name: el9
     box: almalinux/9
@@ -20,17 +15,7 @@ platforms:
       - cluster_beegfs_oss
       - cluster_beegfs_client
 provisioner:
-  name: ansible
-  log: true
-  playbooks:
-    prepare: ../shared/prepare.yml
-    converge: ../shared/converge.yml
   inventory:
     group_vars:
       all:
         beegfs_version: "8.4"
-verifier:
-  name: testinfra
-  directory: ../tests
-  options:
-    verbose: true

@@ -19,7 +19,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [default]
+        scenario: [default, vagrant-el8, vagrant-el10, vagrant-all]
+        include:
+          - scenario: vagrant-el8
+            ansible_core: "ansible-core<2.17"  # EL8's dnf bindings need Python 3.6 targets
     steps:
       - uses: actions/checkout@v5
       - name: Enable KVM for the runner user
@@ -40,7 +43,7 @@ jobs:
           python-version: "3.12"
       - name: Install Molecule and collections
         run: |
-          pip install -r molecule/requirements.txt
+          pip install -r molecule/requirements.txt "${{ matrix.ansible_core || 'ansible-core>=2.15' }}"
           ansible-galaxy collection install -r requirements.yml
       - name: molecule test
         env:

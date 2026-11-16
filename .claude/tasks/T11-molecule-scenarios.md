@@ -146,3 +146,14 @@ kmod RPM is left at `/var/tmp/kmod-beegfs.rpm` for converge.
 create, prepare (kernel update, reboot, kmod build), converge,
 idempotence, verify, destroy. Phase 1 done; phase 2 (el8/el10, multi-node
 vagrant-all) and phase 3 (variants) still to estimate and approve.
+
+## Phase 2 (2026-11-16) — committed, waiting for CI
+
+Approved (~165 + reserve; role changes need separate approval). Shared
+`.config/molecule/config.yml`; scenarios only list platforms +
+`beegfs_version`: `default` (EL9, 8.4), `vagrant-el8` (EL8, 7.4.6,
+ansible-core <2.17 in CI only), `vagrant-el10` (EL10, 8.4), `vagrant-all`
+(node1 EL9 mgmt+meta, node2 EL10 storage, node3 EL10 client, 8.4).
+prepare writes /etc/hosts for all nodes and stops firewalld if present.
+Tests are group-aware; new cross-host tests: client cert == mgmt cert,
+`beegfs node list` shows management/meta/storage/client.
