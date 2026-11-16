@@ -69,6 +69,7 @@ jobs:
           diag() { ansible all -i "$inv" -b -m shell -a "$2" 2>&1 | tail -c 3800 | annotate "$1"; }
           diag "services" 'systemctl --no-pager --failed; systemctl --no-pager -n 0 status "beegfs-*" | grep -E "^. |Active:"; ss -tlnp | grep beegfs; getent hosts $(hostname)'
           diag "kernel log" 'journalctl --no-pager -k | grep -i beegfs | tail -40'
+          diag "client" 'uname -r; rpm -q gcc kernel-devel elfutils-libelf-devel beegfs-client kmod-beegfs; ls -l /lib/modules/$(uname -r)/updates/fs/beegfs_autobuild/; journalctl --no-pager -n 40 -u beegfs-client'
           diag "server journal" 'journalctl --no-pager -n 50 -u beegfs-mgmtd -u beegfs-meta -u "beegfs-storage@*"'
       - name: Destroy VMs
         if: always()

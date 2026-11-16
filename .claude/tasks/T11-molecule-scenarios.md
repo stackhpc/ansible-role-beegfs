@@ -207,3 +207,14 @@ Approved ~105 (90–120), actual +117. New scenarios:
 Tests read `molecule_*` scenario vars; RDMA install check (`dnf
 --setopt=tsflags=test`) of `defaults/main.yml`'s list on each scenario's
 mgmt host. Role changes still need approval.
+
+### Phase 3 run 1 (43932147957, 19127cd) — 5/6 green
+
+- ✅ default, vagrant-el8, vagrant-el10, vagrant-all, vagrant-noauth (auth
+  + TLS off), incl. the new RDMA install checks on EL8/9/10.
+- ❌ vagrant-migrate, first (autobuild) converge: servers + helperd run, the
+  role's `beegfs-client rebuild` task succeeded, but the client restart
+  handler fails with exit 1 and nothing beegfs in the kernel log (module
+  never loaded). Per the 7.4.6 init script that's build_beegfs or modprobe
+  failing under `set -e`. Cause not captured → added a "client" diagnostic
+  (kernel, toolchain packages, autobuild module dir, client journal).
