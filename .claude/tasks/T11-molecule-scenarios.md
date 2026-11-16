@@ -167,3 +167,11 @@ Tests are group-aware; new cross-host tests: client cert == mgmt cert,
   annotations` → SyntaxError under EL8's Python 3.6. Checked branch
   sources: stable-11 and older and all ansible.posix branches are 3.6-OK.
   CI now installs `community.general:<12.0.0` for the EL8 job only.
+
+### Phase 2 run 2 (43914731486, b61e0f6) — 3/4 green, EL8 never started
+
+- default, vagrant-el10, vagrant-all ✅ again.
+- vagrant-el8 failed installing collections: the unquoted
+  `community.general:<12.0.0` was a shell redirect (my bug). Quoted now.
+  Failure diagnostics skip the VM checks when no Molecule inventory exists
+  (they had run against the CI runner).

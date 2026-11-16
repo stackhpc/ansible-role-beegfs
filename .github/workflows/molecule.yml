@@ -46,7 +46,7 @@ jobs:
         run: |
           pip install -r molecule/requirements.txt "${{ matrix.ansible_core || 'ansible-core>=2.15' }}"
           ansible-galaxy collection install -r requirements.yml
-          if [ -n "${{ matrix.collections }}" ]; then ansible-galaxy collection install --force ${{ matrix.collections }}; fi
+          if [ -n "${{ matrix.collections }}" ]; then ansible-galaxy collection install --force "${{ matrix.collections }}"; fi
       - name: molecule test
         env:
           PY_COLORS: "0"
@@ -61,7 +61,8 @@ jobs:
           touch molecule.log
           { grep -E -A8 'fatal:|FAILED!|CRITICAL|ERROR|^E  |Idempotence test failed' molecule.log || true; } | tail -c 3800 | annotate "errors"
           tail -c 3800 molecule.log | annotate "end of log"
-          inv=$(ls -d ~/.ansible/tmp/molecule.*.${{ matrix.scenario }}/inventory | head -1)
+          inv=$(ls -d ~/.ansible/tmp/molecule.*.${{ matrix.scenario }}/inventory 2>/dev/null | head -1)
+          [ -n "$inv" ] || exit 0  # failed before any VM existed
           diag() { ansible all -i "$inv" -b -m shell -a "$2" 2>&1 | tail -c 3800 | annotate "$1"; }
           diag "services" 'systemctl --no-pager --failed; systemctl --no-pager -n 0 status "beegfs-*" | grep -E "^. |Active:"; ss -tlnp | grep beegfs; getent hosts $(hostname)'
           diag "kernel log" 'journalctl --no-pager -k | grep -i beegfs | tail -40'
