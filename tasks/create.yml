@@ -170,12 +170,12 @@
     # - /etc/beegfs/<port>.d/beegfs-storage.conf for each beegfs_oss port
     # - /etc/beegfs/beegfs-client-<mgmt_host>.conf for each beegfs_client entry
     #   (mgmt_host defaults to beegfs_mgmt_host), plus beegfs-client.conf, the
-    #   copy that beegfs-ctl reads on the mgmt host
+    #   copy that beegfs-ctl reads on the mgmt host, and on 7.x beegfs-helperd.conf
     # Each disabled service contributes an empty list.
     conf_files: "{{ (['/etc/beegfs/beegfs-mgmtd.conf'] if beegfs_enable.mgmt | bool and beegfs_major_version is version('8', '<') else [])
                     + (['/etc/beegfs/beegfs-meta.conf'] if beegfs_enable.meta | bool else [])
                     + (beegfs_oss | map(attribute='port') | map('string') | map('regex_replace', '^', '/etc/beegfs/') | map('regex_replace', '$', '.d/beegfs-storage.conf') | list if beegfs_enable.oss | bool else [])
-                    + (beegfs_client | map(attribute='mgmt_host', default=beegfs_mgmt_host) | map('regex_replace', '^(.*)$', '/etc/beegfs/beegfs-client-\\1.conf') | list + ['/etc/beegfs/beegfs-client.conf'] if beegfs_enable.client | bool else []) }}"
+                    + (beegfs_client | map(attribute='mgmt_host', default=beegfs_mgmt_host) | map('regex_replace', '^(.*)$', '/etc/beegfs/beegfs-client-\\1.conf') | list + ['/etc/beegfs/beegfs-client.conf'] + (['/etc/beegfs/beegfs-helperd.conf'] if beegfs_major_version is version('8', '<') else []) if beegfs_enable.client | bool else []) }}"
   become: true
   notify: Restart BeeGFS services
 

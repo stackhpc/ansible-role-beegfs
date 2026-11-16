@@ -44,3 +44,6 @@ Verified here: lint, syntax; loop evaluated for all services on 7.4.6 with a
 secret (mgmtd, meta, 2 storage ports, 2 client mgmt hosts + beegfs-client.conf)
 and on 8.4 without one (mgmtd skipped, `connDisableAuthentication = true`).
 Not verified: services actually starting → T13 "Deferred from T07".
+
+Follow-up (2026-11-16): `beegfs-helperd.conf` (7.x clients) was missing from
+the loop; helperd refused to start (Molecule vagrant-el8). Added.

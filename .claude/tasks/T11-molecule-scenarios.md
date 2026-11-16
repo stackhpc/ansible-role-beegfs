@@ -175,3 +175,12 @@ Tests are group-aware; new cross-host tests: client cert == mgmt cert,
   `community.general:<12.0.0` was a shell redirect (my bug). Quoted now.
   Failure diagnostics skip the VM checks when no Molecule inventory exists
   (they had run against the CI runner).
+
+### Phase 2 run 3 (43919704596, bcf9315) — 3/4 green; EL8 role bug (approved fix)
+
+- vagrant-el8 (7.4.6): mgmtd (7.x setup), meta, storage start; client mount
+  fails: "Communication with user-space helper daemon failed". helperd
+  failed to start: its shipped conf has `connAuthFile =` and
+  `connDisableAuthentication = false`, and T07's loop didn't include
+  `beegfs-helperd.conf`. Fix (role, 2 lines, approved): add it on 7.x
+  client hosts. The 7.x mgmtd `originalNodeID` marker was fine.
