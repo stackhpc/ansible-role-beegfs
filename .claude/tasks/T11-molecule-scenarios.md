@@ -139,3 +139,10 @@ kmod RPM is left at `/var/tmp/kmod-beegfs.rpm` for converge.
   "✅ Management TLS" and no 🛑 other than License Status.
 - Phase 1 size so far: test infra +272 (approved ~285), role fixes found
   by the runs +17 (oss stat, flush order, 8.x port keys, setup marker).
+
+### Run 7 (43892832806, 0edc240) — ✅ phase 1 green (2026-11-16)
+
+`molecule test -s default` passes end to end on GitHub Actions (~10 min):
+create, prepare (kernel update, reboot, kmod build), converge,
+idempotence, verify, destroy. Phase 1 done; phase 2 (el8/el10, multi-node
+vagrant-all) and phase 3 (variants) still to estimate and approve.
