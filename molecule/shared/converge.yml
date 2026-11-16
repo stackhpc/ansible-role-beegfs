@@ -21,6 +21,7 @@
       beegfs_force_format: false
       beegfs_interfaces: ["{{ ansible_default_ipv4.interface }}"]
       beegfs_rdma: false
-      beegfs_conn_auth_secret: molecule-test
+      beegfs_conn_auth_secret: "{{ molecule_auth_secret | default('molecule-test') }}"
+      beegfs_tls_disable: "{{ molecule_tls_disable | default(false) }}"
       beegfs_client_kmod_packages: ["/var/tmp/kmod-beegfs.rpm"]  # from prepare
       beegfs_state: present

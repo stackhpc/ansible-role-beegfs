@@ -19,11 +19,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [default, vagrant-el8, vagrant-el10, vagrant-all]
+        scenario: [default, vagrant-el8, vagrant-el10, vagrant-all, vagrant-migrate, vagrant-noauth]
         include:
           - scenario: vagrant-el8
             ansible_core: "ansible-core<2.17"  # EL8's dnf bindings need Python 3.6 targets
             collections: "community.general:<12.0.0"  # 12 needs Python 3.7+ on targets
+          - scenario: vagrant-migrate  # EL8 as well
+            ansible_core: "ansible-core<2.17"
+            collections: "community.general:<12.0.0"
     steps:
       - uses: actions/checkout@v5
       - name: Enable KVM for the runner user

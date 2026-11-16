@@ -1,0 +1,24 @@
+---
+# Single node, AlmaLinux 9, BeeGFS 8.4 with connection authentication and
+# mgmtd TLS both disabled. Shared settings: .config/molecule/config.yml
+platforms:
+  - name: el9-noauth
+    box: almalinux/9
+    cpus: 2
+    memory: 2048
+    provider_raw_config_args:
+      - "storage :file, :size => '20G'"
+    config_options:
+      synced_folder: false
+    groups:
+      - cluster_beegfs_mgmt
+      - cluster_beegfs_mds
+      - cluster_beegfs_oss
+      - cluster_beegfs_client
+provisioner:
+  inventory:
+    group_vars:
+      all:
+        beegfs_version: "8.4"
+        molecule_auth_secret: ""
+        molecule_tls_disable: true

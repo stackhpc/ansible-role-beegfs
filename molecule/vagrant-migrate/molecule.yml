@@ -1,0 +1,27 @@
+---
+# Single node, AlmaLinux 8, BeeGFS 7.4.6. Converges the client with the
+# autobuilt module first, then the side effect re-converges with kmod-beegfs
+# (migration). Needs ansible-core < 2.17. Shared settings: .config/molecule/config.yml
+platforms:
+  - name: el8-migrate
+    box: almalinux/8
+    cpus: 2
+    memory: 2048
+    provider_raw_config_args:
+      - "storage :file, :size => '20G'"
+    config_options:
+      synced_folder: false
+    groups:
+      - cluster_beegfs_mgmt
+      - cluster_beegfs_mds
+      - cluster_beegfs_oss
+      - cluster_beegfs_client
+provisioner:
+  playbooks:
+    side_effect: ../shared/migrate-to-kmod.yml
+  inventory:
+    group_vars:
+      all:
+        beegfs_version: "7.4.6"
+        beegfs_client_kmod: false  # switched to true by the side effect
+        molecule_migrated: true

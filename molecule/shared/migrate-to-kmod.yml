@@ -1,0 +1,7 @@
+---
+# Side effect for vagrant-migrate: re-converge the autobuild client with the
+# prebuilt kmod-beegfs, as an existing site switching over would.
+- name: Switch the client to kmod-beegfs
+  import_playbook: converge.yml
+  vars:
+    beegfs_client_kmod: true

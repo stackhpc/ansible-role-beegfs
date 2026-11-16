@@ -193,3 +193,17 @@ Phase 2 done. Phase 3 (variants: autobuild→kmod migration, auth off,
 TLS off, RDMA install check) still to estimate and approve.
 Phase 2 size: test infra +167 (+2 quoting, +3 workflow), role fix +2
 (helperd auth, approved).
+
+## Phase 3 (2026-11-16) — committed, waiting for CI
+
+Approved ~105 (90–120), actual +117. New scenarios:
+- `vagrant-migrate` (EL8, 7.4.6, ansible-core <2.17): converge with
+  `beegfs_client_kmod: false` (autobuild), side effect
+  `molecule/shared/migrate-to-kmod.yml` re-converges with kmod; tests check
+  beegfs-client removed, no autobuild .ko, module from kmod path.
+- `vagrant-noauth` (EL9, 8.4): `molecule_auth_secret: ""`,
+  `molecule_tls_disable: true` from the first converge (not an on→off
+  switch; agreed trade-off).
+Tests read `molecule_*` scenario vars; RDMA install check (`dnf
+--setopt=tsflags=test`) of `defaults/main.yml`'s list on each scenario's
+mgmt host. Role changes still need approval.

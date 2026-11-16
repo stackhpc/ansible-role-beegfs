@@ -1,6 +1,7 @@
 import os
 
 import pytest
+import yaml
 import testinfra
 import testinfra.utils.ansible_runner
 
@@ -21,6 +22,18 @@ def mgmt_host(host):
     return host.ansible.get_variables()['groups'][MGMT][0]
 
 
+def var(host, name, default=None):
+    return host.ansible.get_variables().get(name, default)
+
+
+def auth_on(host):
+    return var(host, 'molecule_auth_secret', 'molecule-test') != ''
+
+
+def tls_on(host):
+    return not var(host, 'molecule_tls_disable', False)
+
+
 def need(host, group, min_major=None):
     """Skip unless the host is in group (and runs at least min_major)."""
     if group not in host.ansible.get_variables()['group_names']:
@@ -30,8 +43,10 @@ def need(host, group, min_major=None):
 
 
 def beegfs_cli(host, args):
+    flags = ('' if tls_on(host) else '--tls-disable ') + \
+        ('' if auth_on(host) else '--auth-disable ')
     return host.run('sudo BEEGFS_MGMTD_ADDR=%s:8010 /opt/beegfs/sbin/beegfs '
-                    + args, mgmt_host(host))
+                    + flags + args, mgmt_host(host))
 
 
 @pytest.mark.parametrize('group,name', [
@@ -75,6 +90,8 @@ def test_kmod(host):
 
 def test_no_compiler(host):
     need(host, CLIENT)
+    if var(host, 'molecule_migrated'):
+        pytest.skip('autobuild installed the toolchain before the migration')
     assert not host.package('gcc').is_installed
     assert not host.package('kernel-devel').is_installed
 
@@ -87,21 +104,52 @@ def test_client_unit(host):
 
 def test_conn_auth_file(host):
     f = host.file('/etc/beegfs/conn.auth')
+    if not auth_on(host):
+        assert not f.exists
+        if CLIENT in var(host, 'group_names'):
+            conf = host.file('/etc/beegfs/beegfs-client.conf')
+            assert conf.contains('^connDisableAuthentication = true')
+        return
     assert f.user == 'root' and f.mode == 0o400
+
+
+def test_migrated_to_kmod(host):
+    need(host, CLIENT)
+    if not var(host, 'molecule_migrated'):
+        pytest.skip('migration scenario only')
+    assert not host.package('beegfs-client').is_installed
+    kernel = host.check_output('uname -r')
+    assert not host.file('/lib/modules/%s/updates/fs/beegfs_autobuild/'
+                         'beegfs.ko' % kernel).exists
+
+
+def test_rdma_packages_installable(host):
+    need(host, MGMT)
+    defaults = os.path.join(os.path.dirname(__file__),
+                            '../../defaults/main.yml')
+    with open(defaults) as f:
+        distro = yaml.safe_load(f)['beegfs_distro_vars']['RedHat']
+    cmd = host.run('sudo dnf -y -q install --setopt=tsflags=test '
+                   + ' '.join(distro['rdma_dev_pkgs']))
+    assert cmd.rc == 0, cmd.stdout + cmd.stderr
 
 
 def test_mgmtd_v8(host):
     need(host, MGMT, min_major=8)
     assert host.file('/var/lib/beegfs/mgmtd.sqlite').exists
     toml = host.file('/etc/beegfs/beegfs-mgmtd.toml')
-    for line in ('auth-disable = false', 'tls-disable = false'):
-        assert toml.contains('^' + line)
+    assert toml.contains('^auth-disable = %s' % str(not auth_on(host)).lower())
+    assert toml.contains('^tls-disable = %s' % str(not tls_on(host)).lower())
+    if not tls_on(host):
+        return
     assert host.file('/etc/beegfs/key.pem').mode == 0o600
     assert host.file('/etc/beegfs/cert.pem').mode == 0o644
 
 
 def test_client_cert_matches_mgmt(host):
     need(host, CLIENT, min_major=8)
+    if not tls_on(host):
+        pytest.skip('TLS disabled')
     mgmt = testinfra.get_host('ansible://%s?ansible_inventory=%s'
                               % (mgmt_host(host), INVENTORY))
     cert = '/etc/beegfs/cert.pem'
@@ -112,7 +160,8 @@ def test_client_cert_matches_mgmt(host):
 def test_health_check_v8(host):
     need(host, CLIENT, min_major=8)
     cmd = beegfs_cli(host, 'health check')
-    assert '✅ Management TLS' in cmd.stdout, cmd.stdout + cmd.stderr
+    if tls_on(host):
+        assert '✅ Management TLS' in cmd.stdout, cmd.stdout + cmd.stderr
     # Test VMs have no BeeGFS license; every other check must pass.
     failed = [line for line in cmd.stdout.splitlines()
               if '\U0001f6d1' in line and 'License Status' not in line]
