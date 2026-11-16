@@ -184,3 +184,12 @@ Tests are group-aware; new cross-host tests: client cert == mgmt cert,
   `connDisableAuthentication = false`, and T07's loop didn't include
   `beegfs-helperd.conf`. Fix (role, 2 lines, approved): add it on 7.x
   client hosts. The 7.x mgmtd `originalNodeID` marker was fine.
+
+### Phase 2 run 4 (43924583504, 47b560f) — ✅ all four green (2026-11-16)
+
+default (EL9, 8.4), vagrant-el8 (EL8, 7.4.6), vagrant-el10 (EL10, 8.4),
+vagrant-all (3 nodes, EL9/EL10, 8.4): converge, idempotence, verify.
+Phase 2 done. Phase 3 (variants: autobuild→kmod migration, auth off,
+TLS off, RDMA install check) still to estimate and approve.
+Phase 2 size: test infra +167 (+2 quoting, +3 workflow), role fix +2
+(helperd auth, approved).
