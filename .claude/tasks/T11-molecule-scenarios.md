@@ -130,3 +130,12 @@ kmod RPM is left at `/var/tmp/kmod-beegfs.rpm` for converge.
 - Fix: `creates: <path>/format.conf`, which both 7.4.6 and 8.4 setup
   scripts always write. `mgmt.yml` (7.x only) still uses `originalNodeID` →
   verify in `vagrant-el8` (phase 2).
+
+### Run 6 (43890981591, ef99e71) — converge ✅, idempotence ✅, verify 10/12
+
+- 10 passed, 1 skipped (helperd on 8.x), 1 failed: `beegfs health check`
+  exits 1 only for "🛑 License Status -> No valid license found"; TLS,
+  reachability, consistency, connections all ✅. Test now requires
+  "✅ Management TLS" and no 🛑 other than License Status.
+- Phase 1 size so far: test infra +272 (approved ~285), role fixes found
+  by the runs +17 (oss stat, flush order, 8.x port keys, setup marker).

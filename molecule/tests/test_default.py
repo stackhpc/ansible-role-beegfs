@@ -81,4 +81,8 @@ def test_health_check_v8(host):
         pytest.skip('BeeGFS 8 only')
     cmd = host.run('sudo BEEGFS_MGMTD_ADDR=%s:8010 '
                    '/opt/beegfs/sbin/beegfs health check', mgmt_host(host))
-    assert cmd.rc == 0, cmd.stdout + cmd.stderr
+    assert '\u2705 Management TLS' in cmd.stdout, cmd.stdout + cmd.stderr
+    # Test VMs have no BeeGFS license; every other check must pass.
+    failed = [line for line in cmd.stdout.splitlines()
+              if '\U0001f6d1' in line and 'License Status' not in line]
+    assert not failed, cmd.stdout + cmd.stderr
