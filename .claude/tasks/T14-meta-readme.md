@@ -29,3 +29,9 @@ platforms `EL: ["8", "9", "10"]` only.
 - `beegfs_mgmt_path` is unused on 8.x (DB at `/var/lib/beegfs/mgmtd.sqlite`).
 - The `beegfs` CLI needs `BEEGFS_MGMTD_ADDR=<mgmt>:8010` (or
   `--mgmtd-addr`).
+
+## From Molecule phase 2 (2026-11-16)
+
+- EL8 managed hosts need ansible-core < 2.17 (dnf bindings are Python 3.6
+  only) **and** community.general < 12 (12 uses Python 3.7+ syntax in
+  modules). EL9/EL10 work with current versions. Put in the support table.

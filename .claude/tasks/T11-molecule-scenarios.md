@@ -157,3 +157,13 @@ ansible-core <2.17 in CI only), `vagrant-el10` (EL10, 8.4), `vagrant-all`
 prepare writes /etc/hosts for all nodes and stops firewalld if present.
 Tests are group-aware; new cross-host tests: client cert == mgmt cert,
 `beegfs node list` shows management/meta/storage/client.
+
+### Phase 2 run 1 (43910930061, cf9c2d4) — 3/4 green
+
+- ✅ default, vagrant-el10, vagrant-all (multi-node: cross-host auth, TLS
+  cert distribution, node list all pass).
+- ❌ vagrant-el8: not a role bug. ansible-core <2.17 worked (dnf ran), but
+  the latest community.general (12.x) uses `from __future__ import
+  annotations` → SyntaxError under EL8's Python 3.6. Checked branch
+  sources: stable-11 and older and all ansible.posix branches are 3.6-OK.
+  CI now installs `community.general:<12.0.0` for the EL8 job only.
