@@ -76,3 +76,9 @@ All six scenarios green. Implemented: every item above except
 - 2026-11-17: added `test_client_survives_restart` (client hosts) and
   `test_no_v7_mgmtd_setup_v8` (no beegfs-mgmtd.conf, no default
   `beegfs_mgmt_path` on 8.x mgmt hosts), +16. Close T13 once CI is green.
+
+## Outcome (2026-11-17)
+
+Done. Run 44139388963 (9f528de): all six scenarios green with the two new
+checks. Remaining known gap (agreed trade-off): 7.x with auth disabled is
+untested.

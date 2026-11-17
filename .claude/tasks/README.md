@@ -21,7 +21,7 @@ the user's explicit approval, asked for with a justification — see
 - [x] [T10](T10-rdma-packages.md) RDMA package list for EL8+
 - [x] [T11](T11-molecule-scenarios.md) Molecule scenarios for EL8/9/10
 - [x] [T12](T12-molecule-prepare-kmod.md) Molecule prepare builds kmod RPM
-- [ ] [T13](T13-molecule-tests.md) Update testinfra tests (two checks open, see Status)
+- [x] [T13](T13-molecule-tests.md) Update testinfra tests
 - [ ] [T14](T14-meta-readme.md) meta/main.yml + README
 - [ ] [T15](T15-ci.md) Replace Travis with GitHub Actions
 - [x] [T16](T16-remove-debian.md) Remove Debian/Ubuntu support (do after T05)
