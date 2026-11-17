@@ -63,3 +63,13 @@ and `molecule/INSTALL.rst` replace the per-scenario copies; the role is
 referenced as `stackhpc.beegfs` (meta namespace + role_name). Prepare
 updates the kernel and reboots so `kernel-devel-$(uname -r)` exists; the
 kmod RPM is left at `/var/tmp/kmod-beegfs.rpm` for converge.
+
+## Status (2026-11-17)
+
+All six scenarios green. Implemented: every item above except
+- not written: "client survives `systemctl restart beegfs-client`" (T06),
+  "no `beegfs-mgmtd.conf` edits / no `beegfs_mgmt_path` dir on 8.x" (T09);
+- covered differently (agreed): auth-off and TLS-off run from scratch in
+  `vagrant-noauth` (8.4), not as a switch in vagrant-el8/el10 — so 7.x with
+  auth disabled (incl. helperd) is untested; health check tolerates only
+  the missing license.

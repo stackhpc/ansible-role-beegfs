@@ -227,3 +227,11 @@ mgmt host. Role changes still need approval.
   (/etc/init.d/beegfs-client → /opt/beegfs/sbin/beegfs-client) runs
   `restorecon`. Fix (role, +7, approved): restorecon after the role's
   rebuild, 7.x autobuild + SELinux enabled only.
+
+### Phase 3 run 3 (44133986053, bd9d430) — ✅ all six green (2026-11-17)
+
+default, vagrant-el8, vagrant-el10, vagrant-all, vagrant-migrate
+(autobuild → kmod on 7.4.6/EL8), vagrant-noauth (auth + TLS off).
+Phase 3 done: test infra +118 (approved 90–120); role fixes found by the
+runs and approved separately: helperd auth (+2), 7.x autobuild SELinux
+label (+7).
