@@ -73,3 +73,6 @@ All six scenarios green. Implemented: every item above except
   `vagrant-noauth` (8.4), not as a switch in vagrant-el8/el10 — so 7.x with
   auth disabled (incl. helperd) is untested; health check tolerates only
   the missing license.
+- 2026-11-17: added `test_client_survives_restart` (client hosts) and
+  `test_no_v7_mgmtd_setup_v8` (no beegfs-mgmtd.conf, no default
+  `beegfs_mgmt_path` on 8.x mgmt hosts), +16. Close T13 once CI is green.

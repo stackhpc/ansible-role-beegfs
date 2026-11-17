@@ -96,6 +96,15 @@ def test_no_compiler(host):
     assert not host.package('kernel-devel').is_installed
 
 
+def test_client_survives_restart(host):
+    need(host, CLIENT)
+    assert host.run('sudo systemctl restart beegfs-client').rc == 0
+    assert host.mount_point('/mnt/beegfs').exists
+    cmd = host.run("sudo sh -c 'echo again > /mnt/beegfs/t2' && "
+                   "sudo cat /mnt/beegfs/t2")
+    assert cmd.rc == 0 and cmd.stdout.strip() == 'again'
+
+
 def test_client_unit(host):
     need(host, CLIENT)
     show = host.check_output('systemctl show -p Type -p Restart beegfs-client')
@@ -144,6 +153,13 @@ def test_mgmtd_v8(host):
         return
     assert host.file('/etc/beegfs/key.pem').mode == 0o600
     assert host.file('/etc/beegfs/cert.pem').mode == 0o644
+
+
+def test_no_v7_mgmtd_setup_v8(host):
+    need(host, MGMT, min_major=8)
+    assert not host.file('/etc/beegfs/beegfs-mgmtd.conf').exists
+    # beegfs_mgmt_path default; molecule doesn't override it
+    assert not host.file('/data/beegfs/beegfs_mgmtd').exists
 
 
 def test_client_cert_matches_mgmt(host):
