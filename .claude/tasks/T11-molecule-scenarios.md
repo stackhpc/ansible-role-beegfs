@@ -218,3 +218,12 @@ mgmt host. Role changes still need approval.
   never loaded). Per the 7.4.6 init script that's build_beegfs or modprobe
   failing under `set -e`. Cause not captured → added a "client" diagnostic
   (kernel, toolchain packages, autobuild module dir, client journal).
+
+### Phase 3 run 2 (43944024678, b045a34) — 5/6, migrate cause found
+
+- vagrant-migrate autobuild client: `modprobe: could not insert 'beegfs':
+  Permission denied` — SELinux. The 7.4.6/7.4.7 init script builds into
+  `updates/fs/beegfs_autobuild` without restoring labels; 8.4's
+  (/etc/init.d/beegfs-client → /opt/beegfs/sbin/beegfs-client) runs
+  `restorecon`. Fix (role, +7, approved): restorecon after the role's
+  rebuild, 7.x autobuild + SELinux enabled only.

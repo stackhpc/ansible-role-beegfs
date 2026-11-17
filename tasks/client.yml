@@ -51,6 +51,13 @@
   become: true
   notify: Restart BeeGFS client service
 
+- name: Label the autobuilt module for SELinux (7.x autobuild leaves it unlabeled)
+  command: restorecon -R /lib/modules/{{ ansible_kernel }}/updates/fs/beegfs_autobuild
+  changed_when: false  # restorecon is idempotent
+  when: not beegfs_client_kmod | bool and ansible_selinux.status == 'enabled'
+        and beegfs_major_version is version('8', '<')
+  become: true
+
 - name: Ensure the BeeGFS mount point exists
   file:
     path: "{{ client_path }}"

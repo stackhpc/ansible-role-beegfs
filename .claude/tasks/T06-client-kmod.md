@@ -66,3 +66,7 @@ Verified here: ansible-lint, yamllint, syntax check; the role's own
 expressions evaluated for default kmod (`kmod-beegfs`, GPG on), a local RPM
 (GPG off) and `beegfs_client_kmod: false` (`beegfs-client`, autobuild tasks
 run). Not verified: anything on a real client → T11/T13 "Deferred from T06".
+
+Follow-up (2026-11-17): the autobuild path (`beegfs_client_kmod: false`)
+failed on 7.x with SELinux enforcing (unlabeled module, modprobe EPERM).
+Added a 7.x-only `restorecon` after the rebuild task (Molecule vagrant-migrate).

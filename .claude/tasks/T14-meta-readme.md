@@ -35,3 +35,7 @@ platforms `EL: ["8", "9", "10"]` only.
 - EL8 managed hosts need ansible-core < 2.17 (dnf bindings are Python 3.6
   only) **and** community.general < 12 (12 uses Python 3.7+ syntax in
   modules). EL9/EL10 work with current versions. Put in the support table.
+- 7.x autobuild on SELinux-enforcing hosts: the role restores the module's
+  label after its rebuild, but rebuilds the 7.x init script does on its own
+  (kernel update, autobuild.conf change) stay unlabeled until the role runs
+  again (upstream bug, fixed in 8.x). Recommend kmod-beegfs there.
