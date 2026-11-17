@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/stackhpc/ansible-role-beegfs.svg?branch=master)](https://travis-ci.com/stackhpc/ansible-role-beegfs)
+[![Molecule](https://github.com/joaquintorres/ansible-role-beegfs/actions/workflows/molecule.yml/badge.svg)](https://github.com/joaquintorres/ansible-role-beegfs/actions/workflows/molecule.yml)
 
 # stackhpc.beegfs
 
@@ -7,17 +7,39 @@ summary, BeegFS is a parallel file system that spreads user data across
 multiple servers. It is designed to be scalable both in terms of
 performance and capacity. Learn more about BeeFS [here](www.beegfs.io).
 
-The role was last tested using Ansible version 2.5.0.
+The role is tested with Molecule on every push (see [Tests](#tests)) using
+current ansible-core, and ansible-core 2.16 for EL8.
+
+## Supported platforms
+
+| BeeGFS | EL8 | EL9 | EL10 |
+|--------|-----|-----|------|
+| 7.4.x  | tested (7.4.6) | supported | best effort (`beegfs_version: "7.4.7"`, 7.4.6 has no EL10 packages) |
+| 8.x (8.1+, default 8.4) | supported | tested | tested |
+
+Only EL 8/9/10 (Rocky, Alma, RHEL) are supported; Debian, Ubuntu and EL7 are
+not, and the role stops early on them. Requirements: ansible-core >= 2.15 and
+the collections in `requirements.yml`
+(`ansible-galaxy collection install -r requirements.yml`). **EL8 hosts need
+ansible-core < 2.17 and community.general < 12**: EL8's dnf bindings and
+module runtime are Python 3.6.
+
+## Upgrading from earlier versions of this role
+
+The default `beegfs_version` is now `"8.4"`. Existing 7.x clusters must pin
+their release (e.g. `beegfs_version: "7.4.6"`) before updating the role. The
+role does not upgrade across major versions and fails if the installed
+packages are from a different major; follow the upstream upgrade guide.
 
 ## Example
 
 Say we have an inventory that looks like this (`inventory-beegfs`):
 
     [leader]
-    bgfs1 ansible_host=172.16.1.1 ansible_user=centos
+    bgfs1 ansible_host=172.16.1.1 ansible_user=almalinux
 
     [follower]
-    bgfs2 ansible_host=172.16.1.2 ansible_user=centos
+    bgfs2 ansible_host=172.16.1.2 ansible_user=almalinux
 
     [cluster:children]
     leader
@@ -47,6 +69,9 @@ And a corresponding playbook as this (`beegfs.yml`):
       - cluster_beegfs_client 
       roles:
       - role: stackhpc.beegfs
+        beegfs_version: "8.4"
+        beegfs_conn_auth_secret: "{{ vault_beegfs_conn_auth_secret }}"
+        beegfs_client_kmod_packages: ["kmod-beegfs"]  # from your site repo
         beegfs_enable:
           admon: false
           mgmt: "{{ inventory_hostname in groups['cluster_beegfs_mgmt'] }}"
@@ -96,6 +121,46 @@ used to reach the management host, as configured via `beegfs_host_mgmt`. In
 this case, `bgsf1` and `bgfs2` must resolve to `172.16.1.1` and `172.16.1.2`
 respectively. This may be done via DNS or `/etc/hosts`.
 
+### Client kernel module
+
+By default (`beegfs_client_kmod: true`) clients install a prebuilt
+`kmod-beegfs` RPM (`beegfs_client_kmod_packages`) instead of compiling the
+module on every node, so clients need no compiler. Build it with
+[beegfs-kmod](https://gitlab.com/ccad/beegfs-kmod) plus the patch in
+`files/beegfs-kmod/`, e.g. against a build host running the target kernel:
+
+    ansible-playbook -i <build-host>, molecule/shared/build-kmod.yml -e beegfs_version=8.4
+
+and publish `/var/tmp/kmod-beegfs.rpm` to a repo your clients use. Builds are
+per kernel (the release carries the kernel version); `weak-modules` keeps them
+working across kABI-compatible updates. Existing autobuild clients are
+switched over on the next run. `beegfs_client_kmod: false` keeps the old
+autobuild; on 7.x with SELinux enforcing, rebuilds the client service does on
+its own (e.g. after a kernel update) stay unloadable until the role runs
+again, so prefer kmod-beegfs there.
+
+### Connection authentication
+
+Set `beegfs_conn_auth_secret` (keep it in Ansible Vault); it is written to
+`beegfs_conn_auth_file` (`/etc/beegfs/conn.auth`) on every node. An empty
+secret disables authentication (`connDisableAuthentication = true`).
+
+### BeeGFS 8
+
+- The management service needs TLS: the role generates a self-signed
+  certificate on the mgmt host and copies it to clients for the `beegfs` CLI.
+  To use your own, place `/etc/beegfs/cert.pem` and `key.pem` on the mgmt host
+  before running the role; `beegfs_tls_disable: true` turns TLS off. A client
+  with several mgmt hosts keeps the last one's certificate.
+- The admin CLI is `beegfs` (`beegfs-tools`), e.g.
+  `BEEGFS_MGMTD_ADDR=<mgmt-host>:8010 /opt/beegfs/sbin/beegfs health check`.
+- Without a license, BeeGFS 8 limits the number of clients to 5; place a
+  license at `/etc/beegfs/license.pem` on the mgmt host.
+- `beegfs_mgmt_path` is unused; mgmtd keeps its database in
+  `/var/lib/beegfs/mgmtd.sqlite`.
+
+### Storage devices
+
 It is important to note that when provisioning the cluster, if the block
 devices specified already have a file system specified, or the disk is not
 empty, it is important to force format the disk. This can be set my setting
@@ -138,25 +203,21 @@ following playbook:
 
 ## Tests
 
-Some tests are provided in [molecule folder](molecule). To run them locally you need:
+Molecule scenarios in [molecule](molecule) run on GitHub Actions
+([workflow](.github/workflows/molecule.yml)) with Vagrant + libvirt:
 
-- [Vagrant](https://www.vagrantup.com/)
-- [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
-- [Molecule](https://molecule.readthedocs.io/en/latest/)
-- [python-vagrant](https://pypi.org/project/python-vagrant/)
+| Scenario | Hosts | BeeGFS |
+|----------|-------|--------|
+| `default` | 1 × AlmaLinux 9 | 8.4 |
+| `vagrant-el8` | 1 × AlmaLinux 8 | 7.4.6 |
+| `vagrant-el10` | 1 × AlmaLinux 10 | 8.4 |
+| `vagrant-all` | mgmt+meta, storage and client on 3 × AlmaLinux 9/10 | 8.4 |
+| `vagrant-migrate` | 1 × AlmaLinux 8, autobuild client switched to kmod-beegfs | 7.4.6 |
+| `vagrant-noauth` | 1 × AlmaLinux 9, auth and TLS disabled | 8.4 |
 
-Once you have all the dependencies installed you can run the tests from the root folder of the role:
+Each builds `kmod-beegfs` in prepare, converges, checks idempotence and runs
+the shared [testinfra tests](molecule/tests). To run one locally you need KVM,
+libvirt and Vagrant with the `vagrant-libvirt` plugin; see
+[molecule/INSTALL.rst](molecule/INSTALL.rst):
 
-```
-$> molecule lint
-$> molecule test
-$> molecule test -s vagrant-ubuntu-16.04
-$> molecule test -s vagrant-ubuntu-18.04
-```
-
-- The default molecule scenario will test the role in a Centos7.5 machine.
-- All the tests will deploy all the services in a single machine.
-- yaml lint and ansible lint are tested
-- idempotence is checked
-- Once the execution finishes some [testinfra](https://testinfra.readthedocs.io/en/latest/) are
-executed. All the scenarios use the same tests located in [molecule/tests](molecule/tests)
+    $ molecule test -s default

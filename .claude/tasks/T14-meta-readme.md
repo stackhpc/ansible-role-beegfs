@@ -39,3 +39,14 @@ platforms `EL: ["8", "9", "10"]` only.
   label after its rebuild, but rebuilds the 7.x init script does on its own
   (kernel update, autobuild.conf change) stay unlabeled until the role runs
   again (upstream bug, fixed in 8.x). Recommend kmod-beegfs there.
+
+## Outcome (2026-11-17)
+
+Done (+85, approved ~80). `min_ansible_version: "2.15"`. README: Molecule
+badge (fork's workflow; change when it moves upstream), supported-platforms
+table (tested vs supported as CI actually covers), EL8 ansible-core <2.17 +
+community.general <12, upgrading/pinning 7.x, example with beegfs_version /
+auth secret / kmod packages / almalinux user, sections for client kernel
+module (build-kmod.yml, autobuild + 7.x SELinux caveat), connection auth,
+BeeGFS 8 (TLS, CLI, license, mgmt path), and the six-scenario Tests table.
+Untouched: partitions, force-format, hostname resolution notes.
