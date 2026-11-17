@@ -23,5 +23,5 @@ the user's explicit approval, asked for with a justification — see
 - [x] [T12](T12-molecule-prepare-kmod.md) Molecule prepare builds kmod RPM
 - [x] [T13](T13-molecule-tests.md) Update testinfra tests
 - [x] [T14](T14-meta-readme.md) meta/main.yml + README
-- [ ] [T15](T15-ci.md) Replace Travis with GitHub Actions
+- [x] [T15](T15-ci.md) Replace Travis with GitHub Actions
 - [x] [T16](T16-remove-debian.md) Remove Debian/Ubuntu support (do after T05)

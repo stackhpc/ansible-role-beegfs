@@ -224,3 +224,8 @@ Done. Inputs for T12's build playbook:
 Inputs for T06: the client needs no compiler; neither `beegfs-utils` nor
 `beegfs-tools` requires `beegfs-client`; drop `Type=forking` from the
 override; the IB `buildArgs` task only applies to autobuild.
+
+Note (2026-11-17): `.github/workflows/kmod-spike.yml` and
+`.github/kmod-spike/spike.sh` were removed in T15; Molecule's
+`molecule/shared/build-kmod.yml` covers the build on real VMs. They remain in
+git history (last at 592c252's successors up to T15).

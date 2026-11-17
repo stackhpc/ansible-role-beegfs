@@ -1,4 +1,5 @@
 [![Molecule](https://github.com/joaquintorres/ansible-role-beegfs/actions/workflows/molecule.yml/badge.svg)](https://github.com/joaquintorres/ansible-role-beegfs/actions/workflows/molecule.yml)
+[![Lint](https://github.com/joaquintorres/ansible-role-beegfs/actions/workflows/lint.yml/badge.svg)](https://github.com/joaquintorres/ansible-role-beegfs/actions/workflows/lint.yml)
 
 # stackhpc.beegfs
 

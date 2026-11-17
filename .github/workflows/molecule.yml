@@ -7,7 +7,9 @@ name: molecule
 "on":
   workflow_dispatch:
   push:
-    branches: [el8-9-10]
+    branches: [master, el8-9-10]
+    paths-ignore: [".claude/**", "README.md"]
+  pull_request:
     paths-ignore: [".claude/**", "README.md"]
 
 permissions:

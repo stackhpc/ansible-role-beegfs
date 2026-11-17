@@ -1,0 +1,30 @@
+---
+# Fast checks on every push and pull request; Molecule runs separately.
+name: lint
+
+"on":
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install linters and collections
+        run: |
+          pip install ansible-core ansible-lint yamllint flake8
+          ansible-galaxy collection install -r requirements.yml
+      - run: yamllint .
+      - run: ansible-lint
+      - run: flake8 molecule/tests
+      - name: Syntax check
+        run: |
+          mkdir -p ../roles && ln -s "$PWD" ../roles/stackhpc.beegfs
+          ANSIBLE_ROLES_PATH=../roles ansible-playbook tests/test.yml -i tests/inventory --syntax-check
